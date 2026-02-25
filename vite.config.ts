@@ -13,6 +13,9 @@ export default defineConfig(() => {
     plugins: [react()],
     root,
     publicDir: resolve(__dirname, "public"),
+    test: {
+      include: ["../tests/**/*.{test,spec}.?(c|m)[jt]s?(x)"],
+    },
     build: {
       outDir,
       emptyOutDir: process.env.VITE_WATCH ? false : true,
