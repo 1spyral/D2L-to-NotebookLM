@@ -1,6 +1,6 @@
 import React from "react";
 import { createRoot } from "react-dom/client";
-import "webextension-polyfill";
+import { ext } from "../lib/browser";
 
 function App() {
   const [value, setValue] = React.useState("");
@@ -8,7 +8,7 @@ function App() {
 
   React.useEffect(() => {
     let cancelled = false;
-    browser.storage.sync
+    ext.storage.sync
       .get({ notebookUrl: "" })
       .then(({ notebookUrl }) => {
         if (cancelled) return;
@@ -25,7 +25,7 @@ function App() {
 
   async function save() {
     setStatus("");
-    await browser.storage.sync.set({ notebookUrl: value.trim() });
+    await ext.storage.sync.set({ notebookUrl: value.trim() });
     setStatus("Saved.");
   }
 

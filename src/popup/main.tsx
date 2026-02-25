@@ -1,13 +1,13 @@
 import React from "react";
 import { createRoot } from "react-dom/client";
-import "webextension-polyfill";
+import { ext } from "../lib/browser";
 
 function App() {
   const [status, setStatus] = React.useState("Loading...");
 
   React.useEffect(() => {
     let cancelled = false;
-    browser.storage.sync
+    ext.storage.sync
       .get({ notebookUrl: "" })
       .then(({ notebookUrl }) => {
         if (cancelled) return;
