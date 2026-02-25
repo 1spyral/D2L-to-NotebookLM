@@ -11,9 +11,9 @@ const fallback: BrowserLike = {
   storage: {
     sync: {
       get: async (defaults = {}) => defaults,
-      set: async () => {}
-    }
-  }
+      set: async () => {},
+    },
+  },
 };
 
 export const ext: BrowserLike =

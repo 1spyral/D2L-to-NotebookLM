@@ -7,7 +7,7 @@
     "dev": "vite",
     "dev:firefox": "node scripts/dev.mjs firefox",
     "dev:chrome": "node scripts/dev.mjs chrome",
-    "format": "biome format .",
+    "format": "biome format . --write",
     "format:check": "biome format . --check",
     "lint": "biome lint .",
     "build": "node scripts/build.mjs",

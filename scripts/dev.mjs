@@ -11,7 +11,7 @@ const env = { ...process.env, OUT_DIR: outDir };
 const manifestMap = {
   chrome: "config/manifest.chrome.json",
   firefox: "config/manifest.firefox.json",
-  safari: "config/manifest.safari.json"
+  safari: "config/manifest.safari.json",
 };
 
 const manifestPath = manifestMap[target];
@@ -21,11 +21,10 @@ if (!manifestPath) {
 }
 
 // Initial build so manifest and bundles exist before web-ext runs.
-const initial = spawnSync(
-  isWindows ? "npx.cmd" : "npx",
-  ["vite", "build"],
-  { stdio: "inherit", env }
-);
+const initial = spawnSync(isWindows ? "npx.cmd" : "npx", ["vite", "build"], {
+  stdio: "inherit",
+  env,
+});
 if (initial.status !== 0) {
   process.exit(initial.status ?? 1);
 }
@@ -45,11 +44,10 @@ watch(manifestSource, () => {
 });
 
 const watchEnv = { ...env, VITE_WATCH: "1" };
-const vite = spawn(
-  isWindows ? "npx.cmd" : "npx",
-  ["vite", "build", "--watch"],
-  { stdio: "inherit", env: watchEnv }
-);
+const vite = spawn(isWindows ? "npx.cmd" : "npx", ["vite", "build", "--watch"], {
+  stdio: "inherit",
+  env: watchEnv,
+});
 
 const webExtArgs = [
   "run",
@@ -59,11 +57,11 @@ const webExtArgs = [
     ? ["--target=chromium"]
     : target === "firefox"
       ? ["--target=firefox-desktop"]
-      : [])
+      : []),
 ];
 
 const webExt = spawn(isWindows ? "npx.cmd" : "npx", ["web-ext", ...webExtArgs], {
-  stdio: "inherit"
+  stdio: "inherit",
 });
 
 function shutdown(code) {

@@ -12,9 +12,7 @@ function App() {
       .then(({ notebookUrl }) => {
         if (cancelled) return;
         setStatus(
-          notebookUrl
-            ? `Configured: ${notebookUrl}`
-            : "Configure NotebookLM URL in options."
+          notebookUrl ? `Configured: ${notebookUrl}` : "Configure NotebookLM URL in options."
         );
       })
       .catch((err) => {

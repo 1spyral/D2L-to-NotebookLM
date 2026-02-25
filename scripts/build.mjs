@@ -5,7 +5,7 @@ import { resolve } from "node:path";
 const targets = {
   chrome: "config/manifest.chrome.json",
   firefox: "config/manifest.firefox.json",
-  safari: "config/manifest.safari.json"
+  safari: "config/manifest.safari.json",
 };
 
 const args = process.argv.slice(2);

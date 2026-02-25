@@ -21,14 +21,14 @@ export default defineConfig(() => {
           popup: resolve(root, "popup.html"),
           options: resolve(root, "options.html"),
           background: resolve(root, "background.ts"),
-          content: resolve(root, "content.ts")
+          content: resolve(root, "content.ts"),
         },
         output: {
           entryFileNames: "[name].js",
           chunkFileNames: "chunks/[name]-[hash].js",
-          assetFileNames: "assets/[name]-[hash][extname]"
-        }
-      }
-    }
+          assetFileNames: "assets/[name]-[hash][extname]",
+        },
+      },
+    },
   };
 });
