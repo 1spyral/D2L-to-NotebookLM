@@ -23,12 +23,7 @@ for (const target of selected) {
   const env = { ...process.env, OUT_DIR: outDir };
 
   console.log(`\nBuilding ${target} -> ${outDir}`);
-
-  // 1. Build background and popup (standard modules)
-  execSync("npx vite build --config vite.config.ts", { stdio: "inherit", env });
-
-  // 2. Build content script separately as IIFE (self-contained)
-  execSync("npx vite build --config vite.content.config.ts", { stdio: "inherit", env });
+  execSync("vite build", { stdio: "inherit", env });
 
   mkdirSync(outDir, { recursive: true });
   copyFileSync(resolve(manifestPath), resolve(outDir, "manifest.json"));
