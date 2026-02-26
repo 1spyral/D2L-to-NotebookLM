@@ -24,8 +24,8 @@
       "matches": ["https://notebooklm.google.com/*"]
     }
   ],
-  "permissions": ["storage", "activeTab", "tabs", "scripting"],
-  "host_permissions": ["<all_urls>"],
+  "permissions": ["storage", "activeTab", "scripting"],
+  "host_permissions": ["https://notebooklm.google.com/*", "https://accounts.google.com/*"],
   "browser_specific_settings": {
     "gecko": {
       "id": "d2l-to-notebooklm@example.com",
