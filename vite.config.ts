@@ -18,7 +18,7 @@ export default defineConfig(() => {
     },
     build: {
       outDir,
-      emptyOutDir: process.env.VITE_WATCH ? false : true,
+      emptyOutDir: !process.env.VITE_WATCH,
       rollupOptions: {
         input: {
           popup: resolve(root, "popup.html"),
