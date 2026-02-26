@@ -1,0 +1,99 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap");
+
+@import "tailwindcss";
+
+@variant dark (&:where(.dark, .dark *));
+
+@theme {
+  /* ── Fonts ─────────────────────────────────────────────── */
+  --font-sans: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    sans-serif;
+  --font-display: Inter, ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  /* ── Type scale ────────────────────────────────────────── */
+  --text-label-sm: 10px;
+  --text-label-sm--line-height: 14px;
+  --text-label-md: 11px;
+  --text-label-md--line-height: 14px;
+  --text-body-sm: 12px;
+  --text-body-sm--line-height: 17px;
+  --text-body-md: 13px;
+  --text-body-md--line-height: 18px;
+  --text-title-sm: 13px;
+  --text-title-sm--line-height: 18px;
+  --text-title-md: 14px;
+  --text-title-md--line-height: 20px;
+  --text-title-lg: 16px;
+  --text-title-lg--line-height: 22px;
+
+  /* ── Border radius ─────────────────────────────────────── */
+  --radius-card: 18px;
+  --radius-pill: 100px;
+  --radius-item: 10px;
+  --radius-chip: 8px;
+
+  /* ── Shadows ───────────────────────────────────────────── */
+  --shadow-elev1: 0 1px 3px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.06);
+  --shadow-elev2: 0 4px 12px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.06);
+  --shadow-elev3: 0 8px 24px rgba(0, 0, 0, 0.12), 0 3px 6px rgba(0, 0, 0, 0.07);
+  --shadow-btn: 0 1px 3px rgba(26, 115, 232, 0.3);
+  --shadow-btn-hov: 0 4px 12px rgba(26, 115, 232, 0.35);
+
+  /* ── Light colors ──────────────────────────────────────── */
+  --color-surface: #e8eaf6;
+  --color-surface-dim: #dde0f5;
+  --color-container: #ffffff;
+  --color-container-low: #eef1ff;
+  --color-outline: #c7cad8;
+  --color-outline-focus: #1a73e8;
+  --color-ink: #1a1c2b;
+  --color-muted: #5b5e72;
+  --color-muted-soft: #8e92a8;
+  --color-primary: #1a73e8;
+  --color-primary-hov: #1765cc;
+  --color-primary-cont: #d3e3fd;
+  --color-on-primary: #ffffff;
+  --color-success: #1e8e3e;
+  --color-success-cont: #d8f5e3;
+  --color-error: #c5221f;
+  --color-error-cont: #fce8e6;
+
+  /* ── Dark colors ───────────────────────────────────────── */
+  --color-dk-surface: #131318;
+  --color-dk-surface-dim: #1c1b22;
+  --color-dk-container: #1e1e26;
+  --color-dk-cont-low: #282835;
+  --color-dk-outline: #44475a;
+  --color-dk-ink: #e4e1ec;
+  --color-dk-muted: #918f9f;
+  --color-dk-primary: #aac7ff;
+  --color-dk-primary-hov: #c2d7ff;
+  --color-dk-prim-cont: #0842a0;
+  --color-dk-success: #6dd58c;
+  --color-dk-success-cont: #0d3b1f;
+  --color-dk-error: #f28b82;
+  --color-dk-error-cont: #601410;
+}
+
+@layer base {
+  *,
+  *::before,
+  *::after {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    margin: 0;
+    background: var(--color-container);
+    font-family: var(--font-sans);
+    font-size: 13px;
+    color: var(--color-ink);
+  }
+
+  .dark body {
+    background: var(--color-dk-container);
+    color: var(--color-dk-ink);
+  }
+}
