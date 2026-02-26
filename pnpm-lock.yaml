@@ -64,7 +64,7 @@ importers:
         specifier: ^8.1.0
         version: 8.10.0
 
-  apps/landing:
+  apps/web:
     dependencies:
       next:
         specifier: 16.1.6
