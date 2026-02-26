@@ -11,7 +11,20 @@
     "service_worker": "background.js",
     "type": "module"
   },
-  "permissions": ["storage", "activeTab", "tabs"],
+  "content_scripts": [
+    {
+      "matches": ["https://notebooklm.google.com/*"],
+      "js": ["content_notebooklm.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["notebooklm_page_upload.js"],
+      "matches": ["https://notebooklm.google.com/*"]
+    }
+  ],
+  "permissions": ["storage", "activeTab", "tabs", "scripting"],
   "host_permissions": ["<all_urls>"],
   "browser_specific_settings": {
     "gecko": {

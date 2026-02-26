@@ -8,9 +8,13 @@ export default defineConfig(() => {
   const outDir = process.env.OUT_DIR
     ? resolve(__dirname, process.env.OUT_DIR)
     : resolve(__dirname, "dist/dev");
+  const isDev = process.env.NODE_ENV !== "production";
 
   return {
     plugins: [react()],
+    define: {
+      __DEV__: JSON.stringify(isDev),
+    },
     root,
     publicDir: resolve(__dirname, "public"),
     test: {
