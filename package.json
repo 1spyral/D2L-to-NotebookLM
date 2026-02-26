@@ -4,9 +4,9 @@
   "scripts": {
     "dev:extension": "pnpm --filter extension dev",
     "build:extension": "pnpm --filter extension build",
-    "dev:landing": "pnpm --filter landing dev",
-    "build:landing": "pnpm --filter landing build",
-    "build": "pnpm build:extension && pnpm build:landing",
+    "dev:web": "pnpm --filter web dev",
+    "build:web": "pnpm --filter web build",
+    "build": "pnpm build:extension && pnpm build:web",
     "format": "biome format . --write",
     "format:check": "biome format .",
     "lint": "pnpm --recursive lint"

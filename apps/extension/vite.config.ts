@@ -7,7 +7,7 @@ const root = resolve(__dirname, "src");
 export default defineConfig(() => {
   const outDir = process.env.OUT_DIR
     ? resolve(__dirname, process.env.OUT_DIR)
-    : resolve(__dirname, "../../dist/extension/dev");
+    : resolve(__dirname, "dist/dev");
   const isDev = process.env.NODE_ENV !== "production";
 
   return {

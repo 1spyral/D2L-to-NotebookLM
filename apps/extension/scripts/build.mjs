@@ -19,7 +19,7 @@ for (const target of selected) {
     continue;
   }
 
-  const outDir = resolve("../../dist/extension", target);
+  const outDir = resolve("dist", target);
   const env = { ...process.env, OUT_DIR: outDir };
 
   console.log(`\nBuilding ${target} -> ${outDir}`);
