@@ -149,8 +149,11 @@ function injectFixedTrigger() {
     box-shadow: 0 4px 12px rgba(0,0,0,0.4);
     z-index: 2147483647; /* Top-most possible */
     font-size: 24px;
+<<<<<<< Updated upstream
     transition: transform 0.2s, background 0.2s;
     user-select: none;
+=======
+>>>>>>> Stashed changes
   `;
   fab.innerHTML = '🚀';
   fab.title = 'Scrape Current Page for NotebookLM';
@@ -166,12 +169,20 @@ function injectFixedTrigger() {
     // 2. Check if a course card link is found on page
     if (!orgUnitId) {
       const firstCourseLink = querySelectorAllDeep('a[href*="/d2l/home/"]')[0];
+<<<<<<< Updated upstream
       orgUnitId = firstCourseLink?.getAttribute('href')?.match(/\/home\/(\d+)/)?.[1];
     }
 
     if (orgUnitId) {
       const confirmScrape = confirm(`Found Course ID: ${orgUnitId}. Start scraping this course?`);
       if (confirmScrape) {
+=======
+      orgUnitId = (firstCourseLink as any)?.getAttribute('href')?.match(/\/home\/(\d+)/)?.[1];
+    }
+
+    if (orgUnitId) {
+      if (confirm('Found Course ID: ' + orgUnitId + '. Start scraping this course?')) {
+>>>>>>> Stashed changes
         const dummyBtn = document.createElement('button');
         handleScrapeAndUpload(orgUnitId, dummyBtn);
       }
@@ -252,6 +263,7 @@ function handleNotebookLM() {
 
     const banner = document.createElement('div');
     banner.id = 'nblm-import-banner';
+<<<<<<< Updated upstream
     banner.style.cssText = `
       position: fixed;
       top: 0;
@@ -275,6 +287,15 @@ function handleNotebookLM() {
         <button id="nblm-close-banner" style="background: transparent; color: white; border: 1px solid white; padding: 5px 10px; border-radius: 4px; cursor: pointer;">Dismiss</button>
       </div>
     `;
+=======
+    banner.style.cssText = 'position: fixed; top: 0; left: 0; right: 0; background: #4285f4; color: white; padding: 10px 20px; z-index: 10000; display: flex; justify-content: space-between; align-items: center; font-family: Google Sans, Roboto, sans-serif; box-shadow: 0 2px 10px rgba(0,0,0,0.3);';
+
+    banner.innerHTML = '<span>🚀 <b>D2L to NotebookLM:</b> Found ' + data.items.length + ' items ready to import.</span>' +
+      '<div>' +
+        '<button id="nblm-import-btn" style="background: white; color: #4285f4; border: none; padding: 5px 15px; border-radius: 4px; cursor: pointer; font-weight: bold; margin-right: 10px;">Get Import Files</button>' +
+        '<button id="nblm-close-banner" style="background: transparent; color: white; border: 1px solid white; padding: 5px 10px; border-radius: 4px; cursor: pointer;">Dismiss</button>' +
+      '</div>';
+>>>>>>> Stashed changes
 
     document.body.appendChild(banner);
 
@@ -285,11 +306,20 @@ function handleNotebookLM() {
 
     document.getElementById('nblm-import-btn')?.addEventListener('click', async () => {
       const items = data.items;
+<<<<<<< Updated upstream
       const links = items.filter((i: any) => i.type === 'link').map((i: any) => i.url).join('\\n');
       
       if (links) {
         await navigator.clipboard.writeText(links);
         alert('Copied links to clipboard! \\n\\n1. Click "Add Source" in NotebookLM.\\n2. Select "Website".\\n3. Paste links and click Insert.');
+=======
+      const nl = String.fromCharCode(10);
+      const links = items.filter((i: any) => i.type === 'link').map((i: any) => i.url).join(nl);
+      
+      if (links) {
+        await navigator.clipboard.writeText(links);
+        alert('Copied links to clipboard!' + nl + nl + '1. Click "Add Source" in NotebookLM.' + nl + '2. Select "Website".' + nl + '3. Paste links and click Insert.');
+>>>>>>> Stashed changes
       } else {
         alert('Found files. Please download them from D2L and upload manually for now.');
       }
