@@ -12,7 +12,7 @@
     "watch:firefox": "node scripts/watch.mjs firefox",
     "watch:safari": "node scripts/watch.mjs safari",
     "format": "biome format . --write",
-    "format:check": "biome format . --check",
+    "format:check": "biome format .",
     "lint": "biome lint .",
     "build": "node scripts/build.mjs",
     "build:chrome": "node scripts/build.mjs chrome",
