@@ -23,7 +23,7 @@ for (const target of selected) {
   const env = { ...process.env, OUT_DIR: outDir };
 
   console.log(`\nBuilding ${target} -> ${outDir}`);
-  
+
   // 1. Build background and popup (standard modules)
   execSync("npx vite build --config vite.config.ts", { stdio: "inherit", env });
 

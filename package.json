@@ -6,9 +6,13 @@
     "build:extension": "pnpm --filter extension build",
     "dev:landing": "pnpm --filter landing dev",
     "build:landing": "pnpm --filter landing build",
-    "build": "pnpm build:extension && pnpm build:landing"
+    "build": "pnpm build:extension && pnpm build:landing",
+    "format": "biome format . --write",
+    "format:check": "biome format .",
+    "lint": "pnpm --recursive lint"
   },
   "devDependencies": {
+    "@biomejs/biome": "^1.9.4",
     "typescript": "^5.5.4"
   }
 }
