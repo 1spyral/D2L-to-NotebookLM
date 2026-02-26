@@ -11,7 +11,12 @@
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
     "build:landing": "pnpm --filter landing build"
+=======
+    "build:landing": "pnpm --filter landing build",
+    "build": "pnpm build:extension && pnpm build:landing"
+>>>>>>> Stashed changes
 =======
     "build:landing": "pnpm --filter landing build",
     "build": "pnpm build:extension && pnpm build:landing"

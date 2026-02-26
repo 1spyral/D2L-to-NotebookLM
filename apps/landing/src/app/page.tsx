@@ -8,6 +8,7 @@ export default function Home() {
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
     <div className="min-h-screen bg-white text-slate-900 font-sans">
       {/* Navigation */}
       <nav className="flex items-center justify-between px-8 py-6 max-w-7xl mx-auto">
@@ -129,6 +130,8 @@ export default function Home() {
             <a href="#" className="hover:text-blue-400 transition-colors">Twitter</a>
             <a href="#" className="hover:text-blue-400 transition-colors">GitHub</a>
 =======
+=======
+>>>>>>> Stashed changes
 =======
 >>>>>>> Stashed changes
 =======
@@ -277,6 +280,9 @@ export default function Home() {
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
 =======
 >>>>>>> Stashed changes
@@ -301,6 +307,7 @@ export default function Home() {
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 function FeatureCard({ icon, title, description }: { icon: string; title: string; description: string }) {
   return (
     <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-100 hover:shadow-md transition-shadow">
@@ -308,6 +315,8 @@ function FeatureCard({ icon, title, description }: { icon: string; title: string
       <h3 className="text-xl font-bold mb-2">{title}</h3>
       <p className="text-slate-600 leading-relaxed">{description}</p>
 =======
+=======
+>>>>>>> Stashed changes
 =======
 >>>>>>> Stashed changes
 =======
@@ -331,6 +340,9 @@ function Feature({ icon, title, description, color }: { icon: string; title: str
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
 =======
 >>>>>>> Stashed changes
@@ -354,12 +366,15 @@ function Step({ number, title, description }: { number: string; title: string; d
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
     <div className="flex gap-8 items-start">
       <div className="text-5xl font-black text-blue-100 leading-none">{number}</div>
       <div>
         <h3 className="text-2xl font-bold mb-2">{title}</h3>
         <p className="text-slate-600 text-lg leading-relaxed">{description}</p>
 =======
+=======
+>>>>>>> Stashed changes
 =======
 >>>>>>> Stashed changes
 =======
@@ -382,6 +397,9 @@ function Step({ number, title, description }: { number: string; title: string; d
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
 =======
 >>>>>>> Stashed changes
