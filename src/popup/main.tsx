@@ -6,6 +6,8 @@ import "./index.css";
 import {
   NOTEBOOKLM_LIST_NOTEBOOKS,
   NOTEBOOKLM_SAVE_TO_NOTEBOOK,
+  NOTEBOOKLM_DEBUG_LOG,
+  type NotebookLmFileBlob,
   type NotebookLmListNotebooksResponse,
   type NotebookLmSaveToNotebookResponse,
   type NotebookLmNotebook,
@@ -23,6 +25,8 @@ function App() {
   const [notebooks, setNotebooks] = React.useState<NotebookLmNotebook[]>([]);
   const [darkMode, setDarkMode] = React.useState(false);
   const [activeUrl, setActiveUrl] = React.useState<string | null>(null);
+  const [pendingFiles, setPendingFiles] = React.useState<NotebookLmFileBlob[] | null>(null);
+  const [mode, setMode] = React.useState<"url" | "files">("url");
 
   React.useEffect(() => {
     browser.tabs.query({ active: true, currentWindow: true }).then((tabs) => {
@@ -108,20 +112,33 @@ function App() {
     setIsWorking(true);
 
     try {
-      const source = await getActiveTabSource();
-      if (!source) {
-        setActionStatus({ type: "error", message: "No active tab URL found." });
-        return;
+      let sources: Array<{ url?: string; title?: string; file?: NotebookLmFileBlob }> = [];
+      let defaultTitle = "Untitled notebook";
+
+      if (mode === "files") {
+        const fileSources = pendingFiles?.map((file) => ({ file }));
+        if (!fileSources?.length) {
+          setActionStatus({ type: "error", message: "No files selected." });
+          return;
+        }
+        sources = fileSources;
+        defaultTitle = fileSources[0]?.file?.name ?? defaultTitle;
+      } else {
+        const source = await getActiveTabSource();
+        if (!source) {
+          setActionStatus({ type: "error", message: "No active tab URL found." });
+          return;
+        }
+        sources = [source];
+        defaultTitle = source.title ?? defaultTitle;
       }
 
       const response = (await browser.runtime.sendMessage({
         type: NOTEBOOKLM_SAVE_TO_NOTEBOOK,
-        sources: [source],
+        sources,
         notebookId: target.notebookId,
         notebookTitle:
-          target.notebookId == null
-            ? (target.notebookTitle ?? source.title ?? "Untitled notebook")
-            : undefined,
+          target.notebookId == null ? (target.notebookTitle ?? defaultTitle) : undefined,
       })) as NotebookLmSaveToNotebookResponse | undefined;
 
       if (!response || response.ok === false) {
@@ -133,6 +150,7 @@ function App() {
       }
 
       setActionStatus({ type: "success", message: "Added to NotebookLM." });
+      setPendingFiles(null);
 
       // Open the saved notebook as the active tab
       await browser.tabs.create({ url: response.notebookUrl, active: true });
@@ -144,6 +162,62 @@ function App() {
     } finally {
       setIsWorking(false);
     }
+  }
+
+  async function handleFilesPicked(files: FileList) {
+    if (!files || files.length === 0) return;
+    setActionStatus(null);
+
+    try {
+      const entries = Array.from(files);
+      const blobs = await Promise.all(
+        entries.map(async (file, index): Promise<NotebookLmFileBlob> => {
+          const buffer = await file.arrayBuffer();
+          const hash = await hashArrayBuffer(buffer);
+          console.log("[NotebookLM] Popup file hash", { name: file.name, index, hash });
+          void browser.runtime.sendMessage({
+            type: NOTEBOOKLM_DEBUG_LOG,
+            label: "Popup file hash",
+            payload: { name: file.name, index, hash },
+          });
+          return {
+            name: file.name,
+            size: file.size,
+            type: file.type || undefined,
+            base64: arrayBufferToBase64(buffer),
+          };
+        })
+      );
+      setPendingFiles(blobs);
+    } catch (error) {
+      setActionStatus({ type: "error", message: String(error) });
+    }
+  }
+
+  const pendingFilesLabel =
+    pendingFiles?.length === 1
+      ? pendingFiles[0].name
+      : pendingFiles
+        ? `${pendingFiles.length} files`
+        : undefined;
+
+  function arrayBufferToBase64(buffer: ArrayBuffer): string {
+    const bytes = new Uint8Array(buffer);
+    let binary = "";
+    const chunkSize = 0x8000;
+    for (let i = 0; i < bytes.length; i += chunkSize) {
+      binary += String.fromCharCode.apply(null, bytes.subarray(i, i + chunkSize));
+    }
+    return btoa(binary);
+  }
+
+  async function hashArrayBuffer(buffer: ArrayBuffer): Promise<string> {
+    const digest = await crypto.subtle.digest("SHA-256", buffer);
+    const bytes = Array.from(new Uint8Array(digest));
+    return bytes
+      .map((b) => b.toString(16).padStart(2, "0"))
+      .join("")
+      .slice(0, 12);
   }
 
   return (
@@ -162,16 +236,49 @@ function App() {
         <DarkModeToggle darkMode={darkMode} onToggle={() => setDarkMode((v) => !v)} />
       </div>
 
+      {/* ── Mode toggle ──────────────────────────────────── */}
+      <div className="px-4 pt-3 pb-0">
+        <div className="flex rounded-pill bg-container-low p-0.5 dark:bg-dk-cont-low">
+          <button
+            type="button"
+            className={`flex-1 rounded-pill py-1.5 text-center text-label-md font-medium transition-colors ${
+              mode === "url"
+                ? "bg-container text-ink shadow-elev1 dark:bg-dk-container dark:text-dk-ink"
+                : "text-muted hover:text-ink dark:text-dk-muted dark:hover:text-dk-ink"
+            }`}
+            onClick={() => setMode("url")}
+          >
+            Save URL
+          </button>
+          <button
+            type="button"
+            className={`flex-1 rounded-pill py-1.5 text-center text-label-md font-medium transition-colors ${
+              mode === "files"
+                ? "bg-container text-ink shadow-elev1 dark:bg-dk-container dark:text-dk-ink"
+                : "text-muted hover:text-ink dark:text-dk-muted dark:hover:text-dk-ink"
+            }`}
+            onClick={() => setMode("files")}
+          >
+            Upload Files
+          </button>
+        </div>
+      </div>
+
       {/* ── Main action area ──────────────────────────────────── */}
       <div className="px-4 pb-4 pt-3">
         <SaveUrlMenu
+          mode={mode}
           isWorking={isWorking}
           actionStatus={actionStatus}
           notebookStatus={notebookStatus}
           notebooks={notebooks}
           activeUrl={activeUrl ?? undefined}
+          hasPendingFiles={Boolean(pendingFiles?.length)}
+          pendingFilesLabel={pendingFilesLabel}
           onSave={(target) => void saveToNotebook(target)}
           onRefresh={() => void refreshNotebooks()}
+          onPickFiles={(files) => void handleFilesPicked(files)}
+          onClearFiles={() => setPendingFiles(null)}
         />
       </div>
 

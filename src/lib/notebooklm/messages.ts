@@ -1,11 +1,30 @@
 export const NOTEBOOKLM_LIST_NOTEBOOKS = "NOTEBOOKLM_LIST_NOTEBOOKS" as const;
 export const NOTEBOOKLM_SAVE_TO_NOTEBOOK = "NOTEBOOKLM_SAVE_TO_NOTEBOOK" as const;
 export const NOTEBOOKLM_LIST_ACCOUNTS = "NOTEBOOKLM_LIST_ACCOUNTS" as const;
+export const NOTEBOOKLM_UPLOAD_FILE = "NOTEBOOKLM_UPLOAD_FILE" as const;
+export const NOTEBOOKLM_PING = "NOTEBOOKLM_PING" as const;
+export const NOTEBOOKLM_CONTENT_READY = "NOTEBOOKLM_CONTENT_READY" as const;
+export const NOTEBOOKLM_DEBUG_LOG = "NOTEBOOKLM_DEBUG_LOG" as const;
 
-export type NotebookLmSource = {
+export type NotebookLmUrlSource = {
   url: string;
   title?: string;
 };
+
+export type NotebookLmFileBlob = {
+  name: string;
+  size: number;
+  type?: string;
+  data?: ArrayBuffer;
+  base64?: string;
+};
+
+export type NotebookLmFileSource = {
+  file: NotebookLmFileBlob;
+  title?: string;
+};
+
+export type NotebookLmSource = NotebookLmUrlSource | NotebookLmFileSource;
 
 export type NotebookLmListNotebooksRequest = {
   type: typeof NOTEBOOKLM_LIST_NOTEBOOKS;
@@ -29,6 +48,48 @@ export type NotebookLmSaveToNotebookResponse =
       ok: false;
       error: string;
     };
+
+export type NotebookLmUploadFileRequest = {
+  type: typeof NOTEBOOKLM_UPLOAD_FILE;
+  notebookId: string;
+  sourceName: string;
+  sourceId: string;
+  file: NotebookLmFileBlob;
+  authuser?: string;
+};
+
+export type NotebookLmUploadFileResponse =
+  | {
+      ok: true;
+    }
+  | {
+      ok: false;
+      error: string;
+    };
+
+export type NotebookLmPingRequest = {
+  type: typeof NOTEBOOKLM_PING;
+};
+
+export type NotebookLmPingResponse =
+  | {
+      ok: true;
+    }
+  | {
+      ok: false;
+      error: string;
+    };
+
+export type NotebookLmContentReadyMessage = {
+  type: typeof NOTEBOOKLM_CONTENT_READY;
+  url: string;
+};
+
+export type NotebookLmDebugLogMessage = {
+  type: typeof NOTEBOOKLM_DEBUG_LOG;
+  label: string;
+  payload?: unknown;
+};
 
 export type NotebookLmNotebook = {
   id: string;

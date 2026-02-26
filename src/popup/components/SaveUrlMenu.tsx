@@ -2,13 +2,18 @@ import React from "react";
 import type { NotebookLmNotebook } from "../../lib/notebooklm/messages";
 
 interface SaveUrlMenuProps {
+  mode: "url" | "files";
   isWorking: boolean;
   actionStatus: { type: "success" | "error"; message: string } | null;
   notebookStatus: string;
   notebooks: NotebookLmNotebook[];
   activeUrl?: string;
+  pendingFilesLabel?: string;
+  hasPendingFiles: boolean;
   onSave: (target: { notebookId?: string; notebookTitle?: string }) => void;
   onRefresh: () => void;
+  onPickFiles: (files: FileList) => void;
+  onClearFiles: () => void;
 }
 
 function truncateUrl(url: string, maxLen = 35): string {
@@ -22,14 +27,21 @@ function truncateUrl(url: string, maxLen = 35): string {
 }
 
 export function SaveUrlMenu({
+  mode,
   isWorking,
   actionStatus,
   notebookStatus,
   notebooks,
   activeUrl,
+  pendingFilesLabel,
+  hasPendingFiles,
   onSave,
   onRefresh,
+  onPickFiles,
+  onClearFiles,
 }: SaveUrlMenuProps) {
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
+
   return (
     <div>
       {/* Status toast */}
@@ -67,31 +79,76 @@ export function SaveUrlMenu({
       {/* Header: label + refresh button */}
       <div className="mb-1 flex items-center justify-between px-1">
         <span className="flex min-w-0 items-baseline gap-1.5 text-body-md font-medium text-ink dark:text-dk-ink">
-          <span>{isWorking ? "Saving" : "Save"}</span>
-          {activeUrl && (
-            <span className="truncate text-body-sm font-normal text-muted dark:text-dk-muted">
-              {isWorking ? "…" : truncateUrl(activeUrl)}
-            </span>
-          )}
+          <span>{isWorking ? "Saving" : mode === "files" ? "Upload files" : "Save"}</span>
+          {mode === "files"
+            ? hasPendingFiles &&
+              pendingFilesLabel && (
+                <span className="truncate text-body-sm font-normal text-muted dark:text-dk-muted">
+                  {pendingFilesLabel}
+                </span>
+              )
+            : activeUrl && (
+                <span className="truncate text-body-sm font-normal text-muted dark:text-dk-muted">
+                  {isWorking ? "…" : truncateUrl(activeUrl)}
+                </span>
+              )}
           <span>to:</span>
         </span>
-        <button
-          type="button"
-          title="Refresh notebooks"
-          className="rounded p-1 text-muted transition-colors hover:bg-container-low hover:text-ink disabled:cursor-not-allowed disabled:opacity-40 dark:text-dk-muted dark:hover:bg-dk-cont-low dark:hover:text-dk-ink"
-          onClick={onRefresh}
-          disabled={isWorking || notebookStatus === "Loading notebooks..."}
-        >
-          <svg className="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor">
-            <title>Refresh icon</title>
-            <path
-              fillRule="evenodd"
-              d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z"
-              clipRule="evenodd"
-            />
-          </svg>
-        </button>
+        <div className="flex items-center gap-1.5">
+          <input
+            ref={fileInputRef}
+            type="file"
+            multiple
+            className="hidden"
+            onChange={(event) => {
+              if (!event.target.files || event.target.files.length === 0) return;
+              onPickFiles(event.target.files);
+              event.target.value = "";
+            }}
+          />
+          {mode === "files" && (
+            <button
+              type="button"
+              title="Choose files"
+              className="rounded px-2 py-1 text-label-sm font-medium text-primary transition-colors hover:bg-container-low disabled:cursor-not-allowed disabled:opacity-40 dark:text-dk-primary dark:hover:bg-dk-cont-low"
+              onClick={() => fileInputRef.current?.click()}
+              disabled={isWorking}
+            >
+              Choose files
+            </button>
+          )}
+          <button
+            type="button"
+            title="Refresh notebooks"
+            className="rounded p-1 text-muted transition-colors hover:bg-container-low hover:text-ink disabled:cursor-not-allowed disabled:opacity-40 dark:text-dk-muted dark:hover:bg-dk-cont-low dark:hover:text-dk-ink"
+            onClick={onRefresh}
+            disabled={isWorking || notebookStatus === "Loading notebooks..."}
+          >
+            <svg className="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor">
+              <title>Refresh icon</title>
+              <path
+                fillRule="evenodd"
+                d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z"
+                clipRule="evenodd"
+              />
+            </svg>
+          </button>
+        </div>
       </div>
+
+      {mode === "files" && hasPendingFiles && (
+        <div className="mb-2 flex items-center justify-between rounded-item bg-container-low px-3 py-1.5 text-body-sm text-muted dark:bg-dk-cont-low dark:text-dk-muted">
+          <span>Files selected.</span>
+          <button
+            type="button"
+            className="text-label-sm font-medium text-primary transition-colors hover:text-ink dark:text-dk-primary dark:hover:text-dk-ink"
+            onClick={onClearFiles}
+            disabled={isWorking}
+          >
+            Clear
+          </button>
+        </div>
+      )}
 
       {/* Notebook picker */}
       <div className="overflow-hidden rounded-item border border-outline/60 bg-container shadow-elev2 dark:border-dk-outline/60 dark:bg-dk-container">

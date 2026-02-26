@@ -1,5 +1,7 @@
 import type {
   NotebookLmAccount,
+  NotebookLmFileBlob,
+  NotebookLmFileSource,
   NotebookLmListAccountsResponse,
   NotebookLmListNotebooksResponse,
   NotebookLmNotebook,
@@ -22,6 +24,14 @@ export type NotebookLmBatchClientOptions = {
   pollTimeoutMs?: number;
   pollIntervalMs?: number;
   random?: () => number;
+  fileUploader?: (input: {
+    notebookId: string;
+    sourceName: string;
+    sourceId: string;
+    file: NotebookLmFileBlob;
+    baseUrl: string;
+    authuser?: string;
+  }) => Promise<void>;
 };
 
 export type NotebookLmSaveToNotebookInput = {
@@ -53,6 +63,7 @@ export function createNotebookLmBatchClient(
   const pollIntervalMs = options.pollIntervalMs ?? DEFAULT_POLL_INTERVAL_MS;
   const random = options.random ?? Math.random;
   const fetcher = options.fetch;
+  const fileUploader = options.fileUploader;
 
   async function listNotebooks(): Promise<NotebookLmListNotebooksResponse> {
     try {
@@ -100,17 +111,31 @@ export function createNotebookLmBatchClient(
       }
 
       const tierLimit = await getNotebookTierLimit(tokens);
-      const urls = normalizedSources.map((source) => source.url);
-      const limitedUrls = urls.length > tierLimit ? urls.slice(0, tierLimit) : urls;
+      const limitedSources =
+        normalizedSources.length > tierLimit
+          ? normalizedSources.slice(0, tierLimit)
+          : normalizedSources;
 
-      await addSources(tokens, notebookId, limitedUrls);
+      const urlSources = limitedSources.filter(isUrlSource);
+      const fileSources = limitedSources.filter(isFileSource);
+
+      if (fileSources.length > 0) {
+        for (const source of fileSources) {
+          await uploadFileSource(tokens, notebookId, source);
+        }
+      }
+
+      if (urlSources.length > 0) {
+        const urls = urlSources.map((source) => source.url);
+        await addSources(tokens, notebookId, urls);
+      }
       await pollNotebookReady(tokens, notebookId, pollTimeoutMs, pollIntervalMs);
 
       return {
         ok: true,
         notebookId,
         notebookUrl: notebookUrlForId(baseUrl, notebookId),
-        added: limitedUrls.length,
+        added: limitedSources.length,
       };
     } catch (error) {
       logger.warn?.("NotebookLM save failed", error);
@@ -203,6 +228,123 @@ export function createNotebookLmBatchClient(
       sourcePath: `/notebook/${notebookId}`,
       payload: JSON.stringify([items, notebookId]),
     });
+  }
+
+  async function uploadFileSource(
+    tokens: { bl: string; at: string },
+    notebookId: string,
+    source: NotebookLmFileSource
+  ): Promise<void> {
+    const file = source.file;
+    const sourceName = (source.title ?? file.name).trim() || "Untitled file";
+
+    // Register the source FIRST via batchexecute — the server assigns the sourceId.
+    const sourceId = await createFileSource(tokens, notebookId, sourceName);
+
+    if (fileUploader) {
+      await fileUploader({
+        notebookId,
+        sourceName,
+        sourceId,
+        file,
+        baseUrl,
+        authuser,
+      });
+    } else {
+      const uploadUrl = await startResumableUpload(notebookId, file, sourceId, sourceName);
+      await uploadResumableFile(uploadUrl, file);
+    }
+  }
+
+  async function startResumableUpload(
+    notebookId: string,
+    file: NotebookLmFileBlob,
+    sourceId: string,
+    sourceName: string
+  ): Promise<string> {
+    const authuserHeader = authuser ?? "0";
+    const contentLength =
+      typeof file.data?.byteLength === "number" && file.data.byteLength > 0
+        ? file.data.byteLength
+        : file.size;
+    const url = `${baseUrl}/upload/_/?authuser=${encodeURIComponent(authuserHeader)}`;
+    const body = new URLSearchParams({
+      PROJECT_ID: notebookId,
+      SOURCE_NAME: sourceName,
+      SOURCE_ID: sourceId,
+    });
+
+    const response = await fetchWithContext(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8",
+        "x-goog-upload-command": "start",
+        "x-goog-upload-protocol": "resumable",
+        "x-goog-upload-header-content-length": String(contentLength),
+        "x-goog-upload-header-content-type": resolveFileContentType(file),
+        "x-goog-authuser": authuserHeader,
+      },
+      body: body.toString(),
+      credentials: "include",
+    });
+
+    if (!response.ok) {
+      throw new Error(`NotebookLM upload start failed: ${response.status} ${response.statusText}`);
+    }
+
+    const uploadUrl =
+      response.headers.get("x-goog-upload-url") ??
+      response.headers.get("x-goog-upload-control-url");
+    if (!uploadUrl) {
+      throw new Error("NotebookLM upload start missing upload URL.");
+    }
+    return uploadUrl;
+  }
+
+  async function uploadResumableFile(uploadUrl: string, file: NotebookLmFileBlob): Promise<void> {
+    const authuserHeader = authuser ?? "0";
+    const response = await fetchWithContext(uploadUrl, {
+      method: "POST",
+      headers: new Headers({
+        "x-goog-upload-command": "upload, finalize",
+        "x-goog-upload-offset": "0",
+        "x-goog-authuser": authuserHeader,
+        "Content-Type": resolveFileContentType(file),
+      }),
+      body: file.data,
+      credentials: "include",
+    });
+
+    if (!response.ok) {
+      throw new Error(`NotebookLM upload failed: ${response.status} ${response.statusText}`);
+    }
+  }
+
+  async function createFileSource(
+    tokens: { bl: string; at: string },
+    notebookId: string,
+    fileName: string
+  ): Promise<string> {
+    const payload = JSON.stringify([
+      [[fileName]],
+      notebookId,
+      [2],
+      [1, null, null, null, null, null, null, null, null, null, [1]],
+    ]);
+
+    const responseText = await postBatchExecute({
+      rpcId: "o4cbdc",
+      bl: tokens.bl,
+      at: tokens.at,
+      sourcePath: `/notebook/${notebookId}`,
+      payload,
+    });
+
+    const sourceId = parseCreateFileSourceResponse(responseText);
+    if (!sourceId) {
+      throw new Error("Failed to register file source: no source ID returned.");
+    }
+    return sourceId;
   }
 
   async function pollNotebookReady(
@@ -334,6 +476,16 @@ export function parseCreateNotebookResponse(responseText: string): string | null
   return match ? match[0] : null;
 }
 
+export function parseCreateFileSourceResponse(responseText: string): string | null {
+  // The o4cbdc response contains the server-assigned source UUID.
+  // Response format: wrb.fr payload has inner JSON like [[["<uuid>"],"filename",...]]
+  // We extract the first UUID from the response text.
+  const match = responseText.match(
+    /\b[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}\b/
+  );
+  return match ? match[0] : null;
+}
+
 export function parseNotebookTierLimitResponse(responseText: string): number {
   return responseText.includes("notebooklm_plus_icon") ? 50 : 300;
 }
@@ -409,12 +561,31 @@ function normalizeBaseUrl(baseUrl: string): string {
 }
 
 function normalizeSources(sources: NotebookLmSource[]): NotebookLmSource[] {
-  return sources
-    .map((source) => ({
-      ...source,
-      url: source.url.trim(),
-    }))
-    .filter((source) => source.url.length > 0);
+  const normalized: NotebookLmSource[] = [];
+  for (const source of sources) {
+    if (isUrlSource(source)) {
+      const trimmed = source.url.trim();
+      if (trimmed.length === 0) continue;
+      normalized.push({ ...source, url: trimmed });
+      continue;
+    }
+    if (isFileSource(source)) {
+      const hasData =
+        (source.file?.data instanceof ArrayBuffer && source.file.data.byteLength > 0) ||
+        (typeof source.file?.base64 === "string" && source.file.base64.length > 0);
+      if (!hasData || source.file.size <= 0) continue;
+      normalized.push(source);
+    }
+  }
+  return normalized;
+}
+
+function isUrlSource(source: NotebookLmSource): source is { url: string; title?: string } {
+  return typeof (source as { url?: unknown }).url === "string";
+}
+
+function isFileSource(source: NotebookLmSource): source is NotebookLmFileSource {
+  return !!(source as NotebookLmFileSource).file;
 }
 
 function extractToken(html: string, key: string): string | null {
@@ -446,6 +617,34 @@ function generateReqId(random: () => number): string {
 
 function delay(ms: number): Promise<void> {
   return new Promise((resolve) => globalThis.setTimeout(resolve, ms));
+}
+
+function resolveFileContentType(file: NotebookLmFileBlob): string {
+  if (file.type) return file.type;
+  const extension = file.name.split(".").pop()?.toLowerCase();
+  if (!extension) return "application/octet-stream";
+  const map: Record<string, string> = {
+    pdf: "application/pdf",
+    txt: "text/plain",
+    md: "text/markdown",
+    csv: "text/csv",
+    json: "application/json",
+    html: "text/html",
+    htm: "text/html",
+    rtf: "application/rtf",
+    doc: "application/msword",
+    docx: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    ppt: "application/vnd.ms-powerpoint",
+    pptx: "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+    xls: "application/vnd.ms-excel",
+    xlsx: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    png: "image/png",
+    jpg: "image/jpeg",
+    jpeg: "image/jpeg",
+    gif: "image/gif",
+    webp: "image/webp",
+  };
+  return map[extension] ?? "application/octet-stream";
 }
 
 function stringifyError(error: unknown): string {
