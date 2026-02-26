@@ -3,6 +3,7 @@ import Image from "next/image";
 export default function Home() {
   return (
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
     <div className="min-h-screen bg-white text-slate-900 font-sans">
       {/* Navigation */}
       <nav className="flex items-center justify-between px-8 py-6 max-w-7xl mx-auto">
@@ -124,6 +125,8 @@ export default function Home() {
             <a href="#" className="hover:text-blue-400 transition-colors">Twitter</a>
             <a href="#" className="hover:text-blue-400 transition-colors">GitHub</a>
 =======
+=======
+>>>>>>> Stashed changes
     <div className="min-h-screen bg-[#e8eaf6] text-[#1a1c2b] font-sans selection:bg-blue-100">
       {/* ── Navigation ───────────────────────────────────────────── */}
       <nav className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-[#c7cad8]/30">
@@ -257,6 +260,9 @@ export default function Home() {
           <div className="flex gap-8 font-medium">
             <a href="#" className="hover:text-[#1a73e8]">Privacy</a>
             <a href="https://github.com/1spyral/D2lToNotebookLM" target="_blank" className="hover:text-[#1a73e8]">GitHub</a>
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
           </div>
         </div>
@@ -266,6 +272,7 @@ export default function Home() {
 }
 
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 function FeatureCard({ icon, title, description }: { icon: string; title: string; description: string }) {
   return (
     <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-100 hover:shadow-md transition-shadow">
@@ -273,6 +280,8 @@ function FeatureCard({ icon, title, description }: { icon: string; title: string
       <h3 className="text-xl font-bold mb-2">{title}</h3>
       <p className="text-slate-600 leading-relaxed">{description}</p>
 =======
+=======
+>>>>>>> Stashed changes
 function Feature({ icon, title, description, color }: { icon: string; title: string; description: string; color: string }) {
   return (
     <div className="p-8 rounded-[24px] border border-[#c7cad8]/30 hover:border-[#1a73e8]/50 hover:shadow-[0_4px_12px_rgba(0,0,0,0.05)] transition-all">
@@ -281,6 +290,9 @@ function Feature({ icon, title, description, color }: { icon: string; title: str
       </div>
       <h3 className="text-[20px] font-semibold mb-3 tracking-tight">{title}</h3>
       <p className="text-[#5b5e72] leading-relaxed">{description}</p>
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
     </div>
   );
@@ -289,12 +301,15 @@ function Feature({ icon, title, description, color }: { icon: string; title: str
 function Step({ number, title, description }: { number: string; title: string; description: string }) {
   return (
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
     <div className="flex gap-8 items-start">
       <div className="text-5xl font-black text-blue-100 leading-none">{number}</div>
       <div>
         <h3 className="text-2xl font-bold mb-2">{title}</h3>
         <p className="text-slate-600 text-lg leading-relaxed">{description}</p>
 =======
+=======
+>>>>>>> Stashed changes
     <div className="flex gap-8 group">
       <div className="w-12 h-12 shrink-0 rounded-full bg-[#1a73e8] text-white flex items-center justify-center font-bold text-lg shadow-md group-hover:scale-110 transition-transform">
         {number}
@@ -302,6 +317,9 @@ function Step({ number, title, description }: { number: string; title: string; d
       <div>
         <h3 className="text-xl font-semibold mb-2 tracking-tight">{title}</h3>
         <p className="text-[#5b5e72] text-lg leading-relaxed">{description}</p>
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
       </div>
     </div>
