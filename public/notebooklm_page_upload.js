@@ -176,9 +176,9 @@
       const request = new XMLHttpRequest();
       request.open("POST", url, true);
       request.withCredentials = true;
-      Object.entries(headers).forEach(([key, value]) => {
+      for (const [key, value] of Object.entries(headers)) {
         request.setRequestHeader(key, value);
-      });
+      }
       request.onload = () => {
         resolve({
           status: request.status,
