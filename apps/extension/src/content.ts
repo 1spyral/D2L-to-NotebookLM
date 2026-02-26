@@ -211,7 +211,10 @@ function injectFixedTrigger() {
 function injectToCourseCards() {
   const cards = querySelectorAllDeep("d2l-enrollment-card");
   for (const card of cards) {
-    if (card.querySelector(".nblm-scrape-btn") || card.shadowRoot?.querySelector(".nblm-scrape-btn"))
+    if (
+      card.querySelector(".nblm-scrape-btn") ||
+      card.shadowRoot?.querySelector(".nblm-scrape-btn")
+    )
       continue;
 
     let orgUnitId = card.getAttribute("org-unit-id");
