@@ -152,8 +152,11 @@ function injectFixedTrigger() {
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
     transition: transform 0.2s, background 0.2s;
     user-select: none;
+=======
+>>>>>>> Stashed changes
 =======
 >>>>>>> Stashed changes
 =======
@@ -178,6 +181,7 @@ function injectFixedTrigger() {
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
       orgUnitId = firstCourseLink?.getAttribute('href')?.match(/\/home\/(\d+)/)?.[1];
     }
 
@@ -189,6 +193,8 @@ function injectFixedTrigger() {
 >>>>>>> Stashed changes
 =======
 >>>>>>> Stashed changes
+=======
+>>>>>>> Stashed changes
       orgUnitId = (firstCourseLink as any)?.getAttribute('href')?.match(/\/home\/(\d+)/)?.[1];
     }
 
@@ -196,6 +202,9 @@ function injectFixedTrigger() {
       if (confirm('Found Course ID: ' + orgUnitId + '. Start scraping this course?')) {
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
 =======
 >>>>>>> Stashed changes
@@ -284,6 +293,7 @@ function handleNotebookLM() {
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
     banner.style.cssText = `
       position: fixed;
       top: 0;
@@ -312,6 +322,8 @@ function handleNotebookLM() {
 >>>>>>> Stashed changes
 =======
 >>>>>>> Stashed changes
+=======
+>>>>>>> Stashed changes
     banner.style.cssText = 'position: fixed; top: 0; left: 0; right: 0; background: #4285f4; color: white; padding: 10px 20px; z-index: 10000; display: flex; justify-content: space-between; align-items: center; font-family: Google Sans, Roboto, sans-serif; box-shadow: 0 2px 10px rgba(0,0,0,0.3);';
 
     banner.innerHTML = '<span>🚀 <b>D2L to NotebookLM:</b> Found ' + data.items.length + ' items ready to import.</span>' +
@@ -321,6 +333,9 @@ function handleNotebookLM() {
       '</div>';
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
 =======
 >>>>>>> Stashed changes
@@ -339,12 +354,15 @@ function handleNotebookLM() {
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
       const links = items.filter((i: any) => i.type === 'link').map((i: any) => i.url).join('\\n');
       
       if (links) {
         await navigator.clipboard.writeText(links);
         alert('Copied links to clipboard! \\n\\n1. Click "Add Source" in NotebookLM.\\n2. Select "Website".\\n3. Paste links and click Insert.');
 =======
+=======
+>>>>>>> Stashed changes
 =======
 >>>>>>> Stashed changes
 =======
@@ -357,6 +375,9 @@ function handleNotebookLM() {
         alert('Copied links to clipboard!' + nl + nl + '1. Click "Add Source" in NotebookLM.' + nl + '2. Select "Website".' + nl + '3. Paste links and click Insert.');
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
 =======
 >>>>>>> Stashed changes
