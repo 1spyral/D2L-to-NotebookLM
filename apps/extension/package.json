@@ -1,0 +1,39 @@
+{
+  "name": "extension",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "dev:firefox": "node scripts/dev.mjs firefox",
+    "dev:chrome": "node scripts/dev.mjs chrome",
+    "format": "biome format . --write",
+    "format:check": "biome format . --check",
+    "lint": "biome lint .",
+    "build": "node scripts/build.mjs",
+    "build:chrome": "node scripts/build.mjs chrome",
+    "build:firefox": "node scripts/build.mjs firefox",
+    "build:safari": "node scripts/build.mjs safari",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "webextension-polyfill": "^0.12.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.5",
+    "@types/react-dom": "^18.3.0",
+    "@types/webextension-polyfill": "^0.12.0",
+    "@vitejs/plugin-react": "^4.3.2",
+    "@biomejs/biome": "^1.9.4",
+    "typescript": "^5.5.4",
+    "vite": "^5.4.8",
+    "web-ext": "^8.1.0",
+    "tailwindcss": "^4.2.1",
+    "@tailwindcss/postcss": "^4.2.1",
+    "postcss": "^8.5.6",
+    "autoprefixer": "^10.4.27"
+  },
+  "packageManager": "pnpm@10.30.2"
+}

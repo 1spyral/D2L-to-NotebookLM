@@ -1,45 +1,19 @@
 {
-  "name": "d2l-to-notebooklm-extension",
+  "name": "d2l-to-notebooklm",
   "private": true,
-  "version": "0.0.1",
-  "type": "module",
   "scripts": {
-    "dev": "vite",
-    "dev:firefox": "node scripts/dev.mjs firefox",
-    "dev:chrome": "node scripts/dev.mjs chrome",
-    "watch": "node scripts/watch.mjs",
-    "watch:chrome": "node scripts/watch.mjs chrome",
-    "watch:firefox": "node scripts/watch.mjs firefox",
-    "watch:safari": "node scripts/watch.mjs safari",
+    "dev:extension": "pnpm --filter extension dev",
+    "build:extension": "pnpm --filter extension build",
+    "dev:web": "pnpm --filter web dev",
+    "build:web": "pnpm --filter web build",
+    "build": "pnpm build:extension && pnpm build:web",
     "format": "biome format . --write",
     "format:check": "biome format .",
-    "lint": "biome lint .",
-    "build": "node scripts/build.mjs",
-    "build:chrome": "node scripts/build.mjs chrome",
-    "build:firefox": "node scripts/build.mjs firefox",
-    "build:safari": "node scripts/build.mjs safari",
-    "test": "vitest run",
-    "typecheck": "tsc -p tsconfig.json --noEmit"
-  },
-  "dependencies": {
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
-    "webextension-polyfill": "^0.12.0"
+    "lint": "pnpm --recursive lint"
   },
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",
-    "@tailwindcss/postcss": "^4.2.1",
-    "@types/react": "^18.3.5",
-    "@types/react-dom": "^18.3.0",
-    "@types/webextension-polyfill": "^0.12.0",
-    "@vitejs/plugin-react": "^4.3.2",
-    "autoprefixer": "^10.4.27",
-    "postcss": "^8.5.6",
-    "tailwindcss": "^4.2.1",
-    "typescript": "^5.5.4",
-    "vite": "^5.4.8",
-    "vitest": "^1.6.0",
-    "web-ext": "^8.1.0"
+    "typescript": "^5.5.4"
   },
-  "packageManager": "pnpm@9.12.1"
+  "packageManager": "pnpm@10.30.2"
 }
