@@ -1,5 +1,5 @@
 {
-  "name": "d2l-to-notebooklm-monorepo",
+  "name": "d2l-to-notebooklm",
   "private": true,
   "scripts": {
     "dev:extension": "pnpm --filter extension dev",
