@@ -1,5 +1,4 @@
-import "webextension-polyfill";
-import browser from "webextension-polyfill";
+import browser from "./lib/browser";
 import { createNotebookLmBatchClient } from "./lib/notebooklm/batchApi";
 import { logDebug } from "./lib/logger";
 import {

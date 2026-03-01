@@ -1,6 +1,6 @@
 import React from "react";
 import { createRoot } from "react-dom/client";
-import browser from "webextension-polyfill";
+import browser from "../lib/browser";
 import "./index.css";
 import {
   NOTEBOOKLM_LIST_NOTEBOOKS,
