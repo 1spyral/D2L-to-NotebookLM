@@ -1,7 +1,6 @@
 import React from "react";
 import { createRoot } from "react-dom/client";
 import browser from "webextension-polyfill";
-import { ext } from "../lib/browser";
 import "./index.css";
 import {
   NOTEBOOKLM_LIST_NOTEBOOKS,
@@ -15,47 +14,64 @@ import {
 import { DarkModeToggle } from "./components/DarkModeToggle";
 import { SaveUrlMenu } from "./components/SaveUrlMenu";
 
-function App() {
-  const [actionStatus, setActionStatus] = React.useState<{
-    type: "success" | "error";
-    message: string;
-  } | null>(null);
-  const [isWorking, setIsWorking] = React.useState(false);
-  const [notebookStatus, setNotebookStatus] = React.useState("Loading notebooks...");
-  const [notebooks, setNotebooks] = React.useState<NotebookLmNotebook[]>([]);
+const DARK_MODE_STORAGE_KEY = "popup:darkMode";
+
+function useDarkMode() {
   const [darkMode, setDarkMode] = React.useState(false);
-  const [activeUrl, setActiveUrl] = React.useState<string | null>(null);
-  const [pendingFiles, setPendingFiles] = React.useState<NotebookLmFileBlob[] | null>(null);
-  const [mode, setMode] = React.useState<"url" | "files">("url");
 
   React.useEffect(() => {
-    browser.tabs.query({ active: true, currentWindow: true }).then((tabs) => {
-      const url = tabs[0]?.url?.trim();
-      if (url) setActiveUrl(url);
-    });
+    const loadDarkMode = async () => {
+      const stored = await browser.storage.local.get(DARK_MODE_STORAGE_KEY);
+      const value = stored[DARK_MODE_STORAGE_KEY];
+
+      if (typeof value === "boolean") {
+        setDarkMode(value);
+        return;
+      }
+
+      if (window.matchMedia?.("(prefers-color-scheme: dark)").matches) {
+        setDarkMode(true);
+      }
+    };
+
+    void loadDarkMode();
+
+    const handleStorageChanged = (
+      changes: Record<string, browser.Storage.StorageChange>,
+      areaName: string
+    ) => {
+      if (areaName !== "local") return;
+      const darkModeChange = changes[DARK_MODE_STORAGE_KEY];
+      if (darkModeChange && typeof darkModeChange.newValue === "boolean") {
+        setDarkMode(darkModeChange.newValue);
+      }
+    };
+
+    browser.storage.onChanged.addListener(handleStorageChanged);
+    return () => browser.storage.onChanged.removeListener(handleStorageChanged);
   }, []);
-
-  React.useEffect(() => {
-    const stored = localStorage.getItem("popup:darkMode");
-    if (stored === "true") {
-      setDarkMode(true);
-    } else if (stored === "false") {
-      setDarkMode(false);
-    } else if (window.matchMedia?.("(prefers-color-scheme: dark)").matches) {
-      setDarkMode(true);
-    }
-  }, []);
-
-  React.useEffect(() => {
-    localStorage.setItem("popup:darkMode", darkMode ? "true" : "false");
-  }, [darkMode]);
 
   React.useEffect(() => {
     document.documentElement.classList.toggle("dark", darkMode);
   }, [darkMode]);
 
-  const refreshNotebooks = React.useCallback(async (signal?: AbortSignal) => {
-    setNotebookStatus("Loading notebooks...");
+  const toggleDarkMode = React.useCallback(() => {
+    setDarkMode((previous) => {
+      const next = !previous;
+      void browser.storage.local.set({ [DARK_MODE_STORAGE_KEY]: next });
+      return next;
+    });
+  }, []);
+
+  return { darkMode, toggleDarkMode };
+}
+
+function useNotebooks() {
+  const [status, setStatus] = React.useState("Loading notebooks...");
+  const [notebooks, setNotebooks] = React.useState<NotebookLmNotebook[]>([]);
+
+  const refresh = React.useCallback(async (signal?: AbortSignal) => {
+    setStatus("Loading notebooks...");
     const cached = await browser.storage.local.get({ notebooks: [] });
     if (signal?.aborted) return;
     const cachedNotebooks = Array.isArray(cached.notebooks)
@@ -65,7 +81,7 @@ function App() {
       : [];
     if (cachedNotebooks.length > 0) {
       setNotebooks(cachedNotebooks);
-      setNotebookStatus("");
+      setStatus("");
     } else {
       setNotebooks([]);
     }
@@ -78,24 +94,60 @@ function App() {
 
       if (!response || response.ok === false) {
         const message = response?.error ?? "Failed to load notebooks.";
-        setNotebookStatus(message === "NOT_SIGNED_IN" ? "Please sign in to NotebookLM." : message);
+        setStatus(message === "NOT_SIGNED_IN" ? "Please sign in to NotebookLM." : message);
         return;
       }
 
       setNotebooks(response.notebooks);
       await browser.storage.local.set({ notebooks: response.notebooks });
-      setNotebookStatus(response.notebooks.length === 0 ? "No notebooks found." : "");
+      setStatus(response.notebooks.length === 0 ? "No notebooks found." : "");
     } catch (error) {
       if (signal?.aborted) return;
-      setNotebookStatus(String(error));
+      setStatus(String(error));
     }
   }, []);
 
   React.useEffect(() => {
     const controller = new AbortController();
-    void refreshNotebooks(controller.signal);
+    void refresh(controller.signal);
     return () => controller.abort();
-  }, [refreshNotebooks]);
+  }, [refresh]);
+
+  return { notebooks, status, refresh, setStatus };
+}
+
+function useActiveTab() {
+  const [activeUrl, setActiveUrl] = React.useState<string | null>(null);
+
+  React.useEffect(() => {
+    const loadActiveTab = async () => {
+      const tabs = await browser.tabs.query({ active: true, currentWindow: true });
+      const url = tabs[0]?.url?.trim();
+      setActiveUrl(url || null);
+    };
+
+    void loadActiveTab();
+  }, []);
+
+  return activeUrl;
+}
+
+function App() {
+  const [actionStatus, setActionStatus] = React.useState<{
+    type: "success" | "error";
+    message: string;
+  } | null>(null);
+  const [isWorking, setIsWorking] = React.useState(false);
+  const {
+    notebooks,
+    status: notebookStatus,
+    refresh: refreshNotebooks,
+    setStatus: setNotebookStatus,
+  } = useNotebooks();
+  const { darkMode, toggleDarkMode } = useDarkMode();
+  const activeUrl = useActiveTab();
+  const [pendingFiles, setPendingFiles] = React.useState<NotebookLmFileBlob[] | null>(null);
+  const [mode, setMode] = React.useState<"url" | "files">("url");
 
   async function getActiveTabSource() {
     const tabs = await browser.tabs.query({ active: true, currentWindow: true });
@@ -233,7 +285,7 @@ function App() {
           </h1>
           <p className="mt-0.5 text-body-sm text-muted dark:text-dk-muted" />
         </div>
-        <DarkModeToggle darkMode={darkMode} onToggle={() => setDarkMode((v) => !v)} />
+        <DarkModeToggle darkMode={darkMode} onToggle={toggleDarkMode} />
       </div>
 
       {/* ── Mode toggle ──────────────────────────────────── */}
