@@ -52,12 +52,7 @@ describe("SaveUrlMenu", () => {
 
   it("matches snapshot in files mode with pending files", () => {
     const { asFragment } = render(
-      <SaveUrlMenu
-        {...baseProps}
-        mode="files"
-        hasPendingFiles
-        pendingFilesLabel="2 files"
-      />
+      <SaveUrlMenu {...baseProps} mode="files" hasPendingFiles pendingFilesLabel="2 files" />
     );
 
     expect(asFragment()).toMatchSnapshot();
