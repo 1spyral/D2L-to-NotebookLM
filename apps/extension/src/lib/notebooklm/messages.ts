@@ -5,6 +5,10 @@ export const NOTEBOOKLM_UPLOAD_FILE = "NOTEBOOKLM_UPLOAD_FILE" as const;
 export const NOTEBOOKLM_PING = "NOTEBOOKLM_PING" as const;
 export const NOTEBOOKLM_CONTENT_READY = "NOTEBOOKLM_CONTENT_READY" as const;
 export const NOTEBOOKLM_DEBUG_LOG = "NOTEBOOKLM_DEBUG_LOG" as const;
+export const NOTEBOOKLM_PAGE_UPLOAD = "NOTEBOOKLM_PAGE_UPLOAD" as const;
+export const NOTEBOOKLM_PAGE_UPLOAD_RESULT = "NOTEBOOKLM_PAGE_UPLOAD_RESULT" as const;
+export const NOTEBOOKLM_PAGE_PING = "NOTEBOOKLM_PAGE_PING" as const;
+export const NOTEBOOKLM_PAGE_PONG = "NOTEBOOKLM_PAGE_PONG" as const;
 
 export type NotebookLmUrlSource = {
   url: string;

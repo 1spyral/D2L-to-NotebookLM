@@ -27,6 +27,8 @@ export default defineConfig(() => {
         input: {
           popup: resolve(root, "popup.html"),
           background: resolve(root, "background.ts"),
+          content_notebooklm: resolve(root, "content_notebooklm.ts"),
+          notebooklm_page_upload: resolve(root, "notebooklm_page_upload.ts"),
         },
         output: {
           entryFileNames: "[name].js",
