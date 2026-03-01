@@ -7,9 +7,11 @@
     "dev:web": "pnpm --filter web dev",
     "build:web": "pnpm --filter web build",
     "build": "pnpm build:extension && pnpm build:web",
+    "typecheck": "pnpm --recursive --if-present run typecheck",
     "format": "biome format . --write",
     "format:check": "biome format .",
     "lint": "pnpm --recursive lint",
+    "test": "pnpm --recursive --if-present run test",
     "prepare": "husky"
   },
   "lint-staged": {
