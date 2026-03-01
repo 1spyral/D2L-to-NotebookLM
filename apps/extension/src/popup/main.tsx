@@ -1,4 +1,4 @@
-import React from "react";
+import { useCallback, useEffect, useState } from "react";
 import { createRoot } from "react-dom/client";
 import browser from "../lib/browser";
 import "./index.css";
@@ -17,9 +17,9 @@ import { SaveUrlMenu } from "./components/SaveUrlMenu";
 const DARK_MODE_STORAGE_KEY = "popup:darkMode";
 
 function useDarkMode() {
-  const [darkMode, setDarkMode] = React.useState(false);
+  const [darkMode, setDarkMode] = useState(false);
 
-  React.useEffect(() => {
+  useEffect(() => {
     const loadDarkMode = async () => {
       const stored = await browser.storage.local.get(DARK_MODE_STORAGE_KEY);
       const value = stored[DARK_MODE_STORAGE_KEY];
@@ -51,11 +51,11 @@ function useDarkMode() {
     return () => browser.storage.onChanged.removeListener(handleStorageChanged);
   }, []);
 
-  React.useEffect(() => {
+  useEffect(() => {
     document.documentElement.classList.toggle("dark", darkMode);
   }, [darkMode]);
 
-  const toggleDarkMode = React.useCallback(() => {
+  const toggleDarkMode = useCallback(() => {
     setDarkMode((previous) => {
       const next = !previous;
       void browser.storage.local.set({ [DARK_MODE_STORAGE_KEY]: next });
@@ -67,10 +67,10 @@ function useDarkMode() {
 }
 
 function useNotebooks() {
-  const [status, setStatus] = React.useState("Loading notebooks...");
-  const [notebooks, setNotebooks] = React.useState<NotebookLmNotebook[]>([]);
+  const [status, setStatus] = useState("Loading notebooks...");
+  const [notebooks, setNotebooks] = useState<NotebookLmNotebook[]>([]);
 
-  const refresh = React.useCallback(async (signal?: AbortSignal) => {
+  const refresh = useCallback(async (signal?: AbortSignal) => {
     setStatus("Loading notebooks...");
     const cached = await browser.storage.local.get({ notebooks: [] });
     if (signal?.aborted) return;
@@ -107,7 +107,7 @@ function useNotebooks() {
     }
   }, []);
 
-  React.useEffect(() => {
+  useEffect(() => {
     const controller = new AbortController();
     void refresh(controller.signal);
     return () => controller.abort();
@@ -117,9 +117,9 @@ function useNotebooks() {
 }
 
 function useActiveTab() {
-  const [activeUrl, setActiveUrl] = React.useState<string | null>(null);
+  const [activeUrl, setActiveUrl] = useState<string | null>(null);
 
-  React.useEffect(() => {
+  useEffect(() => {
     const loadActiveTab = async () => {
       const tabs = await browser.tabs.query({ active: true, currentWindow: true });
       const url = tabs[0]?.url?.trim();
@@ -133,11 +133,11 @@ function useActiveTab() {
 }
 
 function App() {
-  const [actionStatus, setActionStatus] = React.useState<{
+  const [actionStatus, setActionStatus] = useState<{
     type: "success" | "error";
     message: string;
   } | null>(null);
-  const [isWorking, setIsWorking] = React.useState(false);
+  const [isWorking, setIsWorking] = useState(false);
   const {
     notebooks,
     status: notebookStatus,
@@ -146,8 +146,8 @@ function App() {
   } = useNotebooks();
   const { darkMode, toggleDarkMode } = useDarkMode();
   const activeUrl = useActiveTab();
-  const [pendingFiles, setPendingFiles] = React.useState<NotebookLmFileBlob[] | null>(null);
-  const [mode, setMode] = React.useState<"url" | "files">("url");
+  const [pendingFiles, setPendingFiles] = useState<NotebookLmFileBlob[] | null>(null);
+  const [mode, setMode] = useState<"url" | "files">("url");
 
   async function getActiveTabSource() {
     const tabs = await browser.tabs.query({ active: true, currentWindow: true });

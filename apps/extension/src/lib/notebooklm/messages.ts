@@ -116,11 +116,10 @@ export type NotebookLmListNotebooksResponse =
 export function isNotebookLmListNotebooksRequest(
   message: unknown
 ): message is NotebookLmListNotebooksRequest {
-  if (!message || typeof message !== "object") {
+  if (!message || typeof message !== "object" || !("type" in message)) {
     return false;
   }
-  const candidate = message as { type?: unknown };
-  return candidate.type === NOTEBOOKLM_LIST_NOTEBOOKS;
+  return message.type === NOTEBOOKLM_LIST_NOTEBOOKS;
 }
 
 export type NotebookLmAccount = {
@@ -150,19 +149,17 @@ export type NotebookLmListAccountsResponse =
 export function isNotebookLmSaveToNotebookRequest(
   message: unknown
 ): message is NotebookLmSaveToNotebookRequest {
-  if (!message || typeof message !== "object") {
+  if (!message || typeof message !== "object" || !("type" in message) || !("sources" in message)) {
     return false;
   }
-  const candidate = message as { type?: unknown; sources?: unknown };
-  return candidate.type === NOTEBOOKLM_SAVE_TO_NOTEBOOK && Array.isArray(candidate.sources);
+  return message.type === NOTEBOOKLM_SAVE_TO_NOTEBOOK && Array.isArray(message.sources);
 }
 
 export function isNotebookLmListAccountsRequest(
   message: unknown
 ): message is NotebookLmListAccountsRequest {
-  if (!message || typeof message !== "object") {
+  if (!message || typeof message !== "object" || !("type" in message)) {
     return false;
   }
-  const candidate = message as { type?: unknown };
-  return candidate.type === NOTEBOOKLM_LIST_ACCOUNTS;
+  return message.type === NOTEBOOKLM_LIST_ACCOUNTS;
 }
