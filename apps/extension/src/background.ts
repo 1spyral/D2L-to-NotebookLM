@@ -25,6 +25,13 @@ browser.runtime.onInstalled.addListener(() => {
   logDebug("[NotebookLM] Extension installed");
 });
 
+function withErrorResponse<T extends { ok: boolean; error?: string }>(
+  fn: () => Promise<T>,
+  fallback: (err: string) => T
+): Promise<T> {
+  return fn().catch((e) => fallback(String(e)));
+}
+
 browser.runtime.onMessage.addListener((message) => {
   if ((message as NotebookLmDebugLogMessage)?.type === NOTEBOOKLM_DEBUG_LOG) {
     const debug = message as NotebookLmDebugLogMessage;
@@ -38,29 +45,23 @@ browser.runtime.onMessage.addListener((message) => {
     return undefined;
   }
   if (isNotebookLmListNotebooksRequest(message)) {
-    return handleListNotebooks().catch(
-      (error): NotebookLmListNotebooksResponse => ({
-        ok: false,
-        error: String(error),
-      })
+    return withErrorResponse<NotebookLmListNotebooksResponse>(
+      () => handleListNotebooks(),
+      (error) => ({ ok: false, error })
     );
   }
 
   if (isNotebookLmSaveToNotebookRequest(message)) {
-    return handleSaveToNotebook(message).catch(
-      (error): NotebookLmSaveToNotebookResponse => ({
-        ok: false,
-        error: String(error),
-      })
+    return withErrorResponse<NotebookLmSaveToNotebookResponse>(
+      () => handleSaveToNotebook(message),
+      (error) => ({ ok: false, error })
     );
   }
 
   if (isNotebookLmListAccountsRequest(message)) {
-    return handleListAccounts().catch(
-      (error): NotebookLmListAccountsResponse => ({
-        ok: false,
-        error: String(error),
-      })
+    return withErrorResponse<NotebookLmListAccountsResponse>(
+      () => handleListAccounts(),
+      (error) => ({ ok: false, error })
     );
   }
 
