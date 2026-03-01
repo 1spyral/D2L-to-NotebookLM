@@ -204,9 +204,8 @@ function arrayBufferToBase64(buffer?: ArrayBuffer): string {
   if (!buffer) return "";
   const bytes = new Uint8Array(buffer);
   let binary = "";
-  const chunkSize = 0x8000;
-  for (let i = 0; i < bytes.length; i += chunkSize) {
-    binary += String.fromCharCode.apply(null, bytes.subarray(i, i + chunkSize));
+  for (let i = 0; i < bytes.length; i += 1) {
+    binary += String.fromCharCode(bytes[i]);
   }
   return btoa(binary);
 }

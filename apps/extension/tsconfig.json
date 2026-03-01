@@ -10,7 +10,7 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,
-    "types": ["webextension-polyfill"]
+    "types": ["webextension-polyfill", "vite/client"]
   },
   "include": ["src", "tests", "vite.config.ts", "scripts"]
 }
