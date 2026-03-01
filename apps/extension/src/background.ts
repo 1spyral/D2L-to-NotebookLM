@@ -31,7 +31,7 @@ function withErrorResponse<T extends { ok: boolean; error?: string }>(
   return fn().catch((e) => fallback(String(e)));
 }
 
-browser.runtime.onMessage.addListener((message) => {
+export function routeRuntimeMessage(message: unknown) {
   if ((message as NotebookLmDebugLogMessage)?.type === NOTEBOOKLM_DEBUG_LOG) {
     const debug = message as NotebookLmDebugLogMessage;
     logDebug(`[NotebookLM] ${debug.label}`, debug.payload ?? "");
@@ -65,11 +65,13 @@ browser.runtime.onMessage.addListener((message) => {
   }
 
   return undefined;
-});
+}
+
+browser.runtime.onMessage.addListener(routeRuntimeMessage);
 
 const DEFAULT_NOTEBOOKLM_URL = "https://notebooklm.google.com";
 
-async function resolveNotebookLmBaseUrl(): Promise<string> {
+export async function resolveNotebookLmBaseUrl(): Promise<string> {
   const stored = await browser.storage.sync.get({ notebookUrl: "" });
   const candidate = typeof stored.notebookUrl === "string" ? stored.notebookUrl.trim() : "";
   if (!candidate) {
