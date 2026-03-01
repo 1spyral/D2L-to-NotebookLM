@@ -14,6 +14,10 @@
     "build:chrome": "node scripts/build.mjs chrome",
     "build:firefox": "node scripts/build.mjs firefox",
     "build:safari": "node scripts/build.mjs safari",
+    "build:watch": "node scripts/watch.mjs",
+    "build:watch:chrome": "node scripts/watch.mjs chrome",
+    "build:watch:firefox": "node scripts/watch.mjs firefox",
+    "build:watch:safari": "node scripts/watch.mjs safari",
     "test": "vitest run",
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
