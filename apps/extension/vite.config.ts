@@ -19,6 +19,7 @@ export default defineConfig(() => {
     publicDir: resolve(__dirname, "public"),
     test: {
       include: ["../tests/**/*.{test,spec}.?(c|m)[jt]s?(x)"],
+      environment: "jsdom",
     },
     build: {
       outDir,
