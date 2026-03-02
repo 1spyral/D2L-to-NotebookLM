@@ -15,7 +15,9 @@
     "prepare": "husky"
   },
   "lint-staged": {
-    "*.{js,jsx,ts,tsx,cjs,mjs,json,css,md,html,yml,yaml}": ["biome format", "biome lint"]
+    "*.{js,jsx,ts,tsx,cjs,mjs,json,css,md,html,yml,yaml}": [
+      "biome check --write --no-errors-on-unmatched"
+    ]
   },
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",
