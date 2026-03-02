@@ -15,7 +15,10 @@
     "prepare": "husky"
   },
   "lint-staged": {
-    "*.{js,jsx,ts,tsx,cjs,mjs,json,css,md,html,yml,yaml}": ["biome format", "biome lint"]
+    "*.{js,jsx,ts,tsx,cjs,mjs,json,css,md,html,yml,yaml}": [
+      "biome format",
+      "biome lint"
+    ]
   },
   "devDependencies": {
     "@biomejs/biome": "^2.4.4",
