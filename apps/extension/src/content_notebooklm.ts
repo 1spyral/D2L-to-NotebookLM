@@ -9,6 +9,7 @@ import {
   type NotebookLmUploadFileRequest,
   type NotebookLmUploadFileResponse,
 } from "./lib/notebooklm/messages";
+import { logDebug, logWarn } from "./lib/logger";
 
 type RuntimeApi = {
   onMessage: {
@@ -59,7 +60,7 @@ type NotebookLmPageUploadResultMessage = {
     }
 
     const uploadRequest = message as NotebookLmUploadFileRequest;
-    console.log("[NotebookLM] Upload request", {
+    logDebug("[NotebookLM] Upload request", {
       notebookId: uploadRequest.notebookId,
       sourceName: uploadRequest.sourceName,
       sourceId: uploadRequest.sourceId,
@@ -69,11 +70,11 @@ type NotebookLmPageUploadResultMessage = {
 
     handleUpload(uploadRequest)
       .then((response) => {
-        console.log("[NotebookLM] Upload response", response);
+        logDebug("[NotebookLM] Upload response", response);
         sendResponse(response);
       })
       .catch((error: unknown) => {
-        console.log("[NotebookLM] Upload response error", error);
+        logWarn("[NotebookLM] Upload response error", error);
         sendResponse({ ok: false, error: String(error) });
       });
     return true;
@@ -99,7 +100,7 @@ async function handleUpload(
     const fileData = message.file?.data;
     const fallbackBase64 = fileData ? arrayBufferToBase64(fileData) : "";
     const payloadBase64 = fileBase64 || fallbackBase64;
-    console.log("[NotebookLM] Posting page upload", {
+    logDebug("[NotebookLM] Posting page upload", {
       hasBase64: Boolean(payloadBase64),
       base64Length: payloadBase64.length,
     });
@@ -123,7 +124,7 @@ async function handleUpload(
       "*"
     );
     setTimeout(() => {
-      console.log("[NotebookLM] Upload response timeout", { requestId });
+      logWarn("[NotebookLM] Upload response timeout", { requestId });
     }, 10000);
   });
 }
@@ -132,7 +133,7 @@ function pingPageScript(): Promise<void> {
   return new Promise((resolve) => {
     const timeout = setTimeout(() => {
       window.removeEventListener("message", handler);
-      console.log("[NotebookLM] Page upload ping timeout");
+      logWarn("[NotebookLM] Page upload ping timeout");
       resolve();
     }, 2000);
     const handler = (event: MessageEvent) => {
@@ -141,7 +142,7 @@ function pingPageScript(): Promise<void> {
       if (!payload || payload.type !== NOTEBOOKLM_PAGE_PONG) return;
       clearTimeout(timeout);
       window.removeEventListener("message", handler);
-      console.log("[NotebookLM] Page upload pong");
+      logDebug("[NotebookLM] Page upload pong");
       resolve();
     };
     window.addEventListener("message", handler);

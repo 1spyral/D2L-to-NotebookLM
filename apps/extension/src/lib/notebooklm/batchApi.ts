@@ -8,6 +8,7 @@ import type {
   NotebookLmSaveToNotebookResponse,
   NotebookLmSource,
 } from "./messages";
+import { extensionLogger } from "../logger";
 
 type Logger = {
   debug?: (...args: unknown[]) => void;
@@ -58,7 +59,7 @@ export function createNotebookLmBatchClient(
 ): NotebookLmBatchClient {
   const baseUrl = normalizeBaseUrl(options.baseUrl ?? DEFAULT_BASE_URL);
   const authuser = options.accountIndex?.trim() || undefined;
-  const logger = options.logger ?? console;
+  const logger = options.logger ?? extensionLogger;
   const pollTimeoutMs = options.pollTimeoutMs ?? DEFAULT_POLL_TIMEOUT_MS;
   const pollIntervalMs = options.pollIntervalMs ?? DEFAULT_POLL_INTERVAL_MS;
   const random = options.random ?? Math.random;

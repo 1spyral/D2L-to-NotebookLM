@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { createRoot } from "react-dom/client";
 import browser from "../lib/browser";
+import { logDebug } from "../lib/logger";
 import "./index.css";
 import {
   NOTEBOOKLM_LIST_NOTEBOOKS,
@@ -226,7 +227,7 @@ function App() {
         entries.map(async (file, index): Promise<NotebookLmFileBlob> => {
           const buffer = await file.arrayBuffer();
           const hash = await hashArrayBuffer(buffer);
-          console.log("[NotebookLM] Popup file hash", { name: file.name, index, hash });
+          logDebug("[NotebookLM] Popup file hash", { name: file.name, index, hash });
           void browser.runtime.sendMessage({
             type: NOTEBOOKLM_DEBUG_LOG,
             label: "Popup file hash",
