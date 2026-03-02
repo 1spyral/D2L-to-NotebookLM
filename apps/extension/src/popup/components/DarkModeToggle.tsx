@@ -1,5 +1,3 @@
-import React from "react";
-
 interface DarkModeToggleProps {
   darkMode: boolean;
   onToggle: () => void;
