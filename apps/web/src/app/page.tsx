@@ -7,14 +7,17 @@ export default function Home() {
 
   useEffect(() => {
     const ua = navigator.userAgent;
+    let detected = "Chrome";
     if (ua.includes("Firefox")) {
-      setBrowser("Firefox");
+      detected = "Firefox";
     } else if (ua.includes("Edg")) {
-      setBrowser("Edge");
+      detected = "Edge";
     } else if (ua.includes("Safari") && !ua.includes("Chrome")) {
-      setBrowser("Safari");
-    } else {
-      setBrowser("Chrome");
+      detected = "Safari";
+    }
+
+    if (detected !== "Chrome") {
+      setTimeout(() => setBrowser(detected), 0);
     }
   }, []);
 
@@ -121,7 +124,9 @@ export default function Home() {
                 <div className="w-6 h-6 rounded-full bg-[#e8f0fe] text-[#1a73e8] flex items-center justify-center text-xs font-bold mt-1 shrink-0">
                   1
                 </div>
-                <p className="text-[#5f6368]">Install the extension from your browser's store.</p>
+                <p className="text-[#5f6368]">
+                  Install the extension from your browser&apos;s store.
+                </p>
               </div>
               <div className="flex items-start gap-4">
                 <div className="w-6 h-6 rounded-full bg-[#e8f0fe] text-[#1a73e8] flex items-center justify-center text-xs font-bold mt-1 shrink-0">
@@ -134,8 +139,8 @@ export default function Home() {
                   3
                 </div>
                 <p className="text-[#5f6368]">
-                  Open NotebookLM and click 'Import' to start studying.
-                </p>
+                  Open NotebookLM and click &apos;Import&apos; to start studying.
+                </p>{" "}
               </div>
             </div>
           </div>
