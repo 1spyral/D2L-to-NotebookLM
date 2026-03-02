@@ -5,6 +5,7 @@ import {
   NOTEBOOKLM_PAGE_UPLOAD_RESULT,
   type NotebookLmUploadFileResponse,
 } from "./lib/notebooklm/messages";
+import { logDebug, logWarn } from "./lib/logger";
 
 declare global {
   interface Window {
@@ -63,7 +64,7 @@ type XhrPostResponse = {
       payload: NotebookLmPageUploadPayload;
     };
     const { requestId, payload } = uploadData;
-    console.log("[NotebookLM] Page upload request", {
+    logDebug("[NotebookLM] Page upload request", {
       notebookId: payload?.notebookId,
       sourceName: payload?.sourceName,
       sourceId: payload?.sourceId,
@@ -93,7 +94,7 @@ async function handleUpload(
     const base64 = message.file?.base64 || "";
     const data = base64 ? base64ToArrayBuffer(base64) : null;
     const hash = data ? await hashArrayBuffer(data) : null;
-    console.log("[NotebookLM] Page upload hash", { hash });
+    logDebug("[NotebookLM] Page upload hash", { hash });
     const isArrayBuffer = data instanceof ArrayBuffer;
     const contentLength =
       data && typeof data.byteLength === "number" && data.byteLength > 0
@@ -116,7 +117,7 @@ async function handleUpload(
       startHeaders["x-goog-authuser"] = authuser;
     }
 
-    console.log("[NotebookLM] Page upload start", {
+    logDebug("[NotebookLM] Page upload start", {
       startUrl,
       contentLength,
       contentType: message.file?.type || "application/octet-stream",
@@ -140,7 +141,7 @@ async function handleUpload(
       try {
         responseBody = await startResponse.text();
       } catch {}
-      console.log("[NotebookLM] Page upload start failed", {
+      logWarn("[NotebookLM] Page upload start failed", {
         status: startResponse.status,
         statusText: startResponse.statusText,
         body: responseBody.slice(0, 500),
@@ -169,14 +170,14 @@ async function handleUpload(
     }
 
     const uploadBody = data instanceof ArrayBuffer ? data : null;
-    console.log("[NotebookLM] Page upload finalize", {
+    logDebug("[NotebookLM] Page upload finalize", {
       uploadUrl,
       bodyLength: uploadBody?.byteLength,
       expectedLength: contentLength,
     });
     const uploadResponse = await xhrPost(uploadUrl, uploadHeaders, uploadBody);
     if (uploadResponse.status < 200 || uploadResponse.status >= 300) {
-      console.log("[NotebookLM] Page upload finalize failed", {
+      logWarn("[NotebookLM] Page upload finalize failed", {
         status: uploadResponse.status,
         statusText: uploadResponse.statusText,
         body: uploadResponse.responseText.slice(0, 500),
@@ -190,6 +191,7 @@ async function handleUpload(
 
     return { ok: true };
   } catch (error) {
+    logWarn("[NotebookLM] Page upload failed", error);
     return { ok: false, error: error instanceof Error ? error.message : String(error) };
   }
 }
