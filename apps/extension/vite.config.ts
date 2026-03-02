@@ -29,6 +29,7 @@ export default defineConfig(() => {
           popup: resolve(root, "popup.html"),
           background: resolve(root, "background.ts"),
           content_notebooklm: resolve(root, "content_notebooklm.ts"),
+          content_d2l: resolve(root, "content_d2l.ts"),
           notebooklm_page_upload: resolve(root, "notebooklm_page_upload.ts"),
         },
         output: {
