@@ -39,6 +39,7 @@ export type NotebookLmSaveToNotebookRequest = {
   sources: NotebookLmSource[];
   notebookId?: string;
   notebookTitle?: string;
+  skipPoll?: boolean;
 };
 
 export type NotebookLmSaveToNotebookResponse =

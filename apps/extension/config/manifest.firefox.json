@@ -14,6 +14,11 @@
   },
   "content_scripts": [
     {
+      "matches": ["https://*/*", "http://*/*"],
+      "js": ["content_d2l.js"],
+      "run_at": "document_idle"
+    },
+    {
       "matches": ["https://notebooklm.google.com/*"],
       "js": ["content_notebooklm.js"],
       "run_at": "document_idle"
@@ -26,7 +31,12 @@
     }
   ],
   "permissions": ["storage", "activeTab", "scripting"],
-  "host_permissions": ["https://notebooklm.google.com/*", "https://accounts.google.com/*"],
+  "host_permissions": [
+    "https://notebooklm.google.com/*",
+    "https://accounts.google.com/*",
+    "https://*/*",
+    "http://*/*"
+  ],
   "browser_specific_settings": {
     "gecko": {
       "id": "d2l-to-notebooklm@example.com",

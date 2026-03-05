@@ -2,6 +2,8 @@ import { execSync } from "node:child_process";
 import { mkdirSync, copyFileSync } from "node:fs";
 import { resolve } from "node:path";
 
+const bundles = ["app", "content_d2l", "content_notebooklm", "notebooklm_page_upload"];
+
 const targets = {
   chrome: "config/manifest.chrome.json",
   firefox: "config/manifest.firefox.json",
@@ -20,10 +22,16 @@ for (const target of selected) {
   }
 
   const outDir = resolve("dist", target);
-  const env = { ...process.env, OUT_DIR: outDir };
+  const baseEnv = { ...process.env, OUT_DIR: outDir };
 
   console.log(`\nBuilding ${target} -> ${outDir}`);
-  execSync("vite build", { stdio: "inherit", env });
+  for (const bundle of bundles) {
+    console.log(`Building bundle: ${bundle}`);
+    execSync("vite build", {
+      stdio: "inherit",
+      env: { ...baseEnv, EXT_BUNDLE: bundle },
+    });
+  }
 
   mkdirSync(outDir, { recursive: true });
   copyFileSync(resolve(manifestPath), resolve(outDir, "manifest.json"));

@@ -2,6 +2,8 @@ import { spawn, spawnSync } from "node:child_process";
 import { copyFileSync, mkdirSync, watch } from "node:fs";
 import { resolve } from "node:path";
 
+const bundles = ["app", "content_d2l", "content_notebooklm", "notebooklm_page_upload"];
+
 const manifestMap = {
   chrome: "config/manifest.chrome.json",
   firefox: "config/manifest.firefox.json",
@@ -23,12 +25,14 @@ export function createBuildWatch({ logPrefix }) {
   const env = { ...process.env, OUT_DIR: outDir };
 
   // Build once so manifest and bundles exist before entering watch mode.
-  const initial = spawnSync(npxCommand, ["vite", "build"], {
-    stdio: "inherit",
-    env,
-  });
-  if (initial.status !== 0) {
-    process.exit(initial.status ?? 1);
+  for (const bundle of bundles) {
+    const initial = spawnSync(npxCommand, ["vite", "build"], {
+      stdio: "inherit",
+      env: { ...env, EXT_BUNDLE: bundle },
+    });
+    if (initial.status !== 0) {
+      process.exit(initial.status ?? 1);
+    }
   }
 
   mkdirSync(outDir, { recursive: true });
@@ -46,15 +50,17 @@ export function createBuildWatch({ logPrefix }) {
   });
 
   const watchEnv = { ...env, VITE_WATCH: "1" };
-  const vite = spawn(npxCommand, ["vite", "build", "--watch"], {
-    stdio: "inherit",
-    env: watchEnv,
-  });
+  const viteProcesses = bundles.map((bundle) =>
+    spawn(npxCommand, ["vite", "build", "--watch"], {
+      stdio: "inherit",
+      env: { ...watchEnv, EXT_BUNDLE: bundle },
+    })
+  );
 
   return {
     target,
     outDir,
-    vite,
+    viteProcesses,
     npxCommand,
   };
 }
