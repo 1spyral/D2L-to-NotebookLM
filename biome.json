@@ -4,12 +4,12 @@
     "includes": [
       "**",
       "!**/*.css",
-      "!**/dist/**",
-      "!**/node_modules/**",
-      "!**/.next/**",
-      "!**/out/**",
-      "!**/public/**",
-      "!**/dist-extension/**"
+      "!**/dist",
+      "!**/node_modules",
+      "!**/.next",
+      "!**/out",
+      "!**/public",
+      "!**/dist-extension"
     ]
   },
   "formatter": {

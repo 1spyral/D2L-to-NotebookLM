@@ -10,14 +10,13 @@
     "typecheck": "pnpm --recursive --if-present run typecheck",
     "format": "biome format . --write",
     "format:check": "biome format .",
-    "lint": "pnpm --recursive lint",
+    "lint": "biome lint .",
     "test": "pnpm --recursive --if-present run test",
     "prepare": "husky"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx,cjs,mjs,json,css,md,html,yml,yaml}": [
-      "biome format",
-      "biome lint"
+      "biome check --write --no-errors-on-unmatched"
     ]
   },
   "devDependencies": {

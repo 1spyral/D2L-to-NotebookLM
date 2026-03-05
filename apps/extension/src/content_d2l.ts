@@ -1,12 +1,10 @@
-import type { NotebookLmSource, NotebookPickerTarget } from "./d2l/types";
 import {
-  queryAllDeep,
-  normalizeText,
   createActionButton,
+  normalizeText,
+  queryAllDeep,
   setButtonBusy,
   setButtonStatus,
 } from "./d2l/dom";
-import { showNotebookPicker, saveSourcesToNotebook } from "./d2l/notebookPicker";
 import {
   captureDownloadUrlViaClick,
   extractDownloadUrlFromButton,
@@ -14,6 +12,8 @@ import {
   isZipFile,
   unzipFile,
 } from "./d2l/download";
+import { saveSourcesToNotebook, showNotebookPicker } from "./d2l/notebookPicker";
+import type { NotebookLmSource, NotebookPickerTarget } from "./d2l/types";
 
 const LEGACY_NAVBAR_BUTTON_ID = "d2l-to-notebooklm-navbar-button";
 
@@ -106,12 +106,13 @@ async function handleDownloadButtonAction(
 
     if (total > 1 && notebookId) {
       const remaining = sources.slice(1);
-      const results = await Promise.all(
+      const resolvedNotebookId = notebookId;
+      await Promise.all(
         remaining.map((source, i) =>
           saveSourcesToNotebook(
             [source],
             getNotebookTitle(),
-            { notebookId: notebookId! },
+            { notebookId: resolvedNotebookId },
             i < remaining.length - 1
           ).then((response) => {
             if (response.ok) {
