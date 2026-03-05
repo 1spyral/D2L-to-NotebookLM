@@ -122,13 +122,8 @@ async function handleSaveToNotebook(
     sources: message.sources,
     notebookId: message.notebookId,
     notebookTitle: message.notebookTitle,
+    skipPoll: message.skipPoll,
   });
-
-  // After all uploads are done, clear the cache entry.
-  const notebookId = result.ok ? result.notebookId : message.notebookId;
-  if (notebookId) {
-    uploadTabCache.delete(notebookId);
-  }
 
   return result;
 }

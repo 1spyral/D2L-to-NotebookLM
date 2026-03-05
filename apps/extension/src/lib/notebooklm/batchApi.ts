@@ -39,6 +39,7 @@ export type NotebookLmSaveToNotebookInput = {
   sources: NotebookLmSource[];
   notebookId?: string;
   notebookTitle?: string;
+  skipPoll?: boolean;
 };
 
 export type NotebookLmBatchClient = {
@@ -130,7 +131,9 @@ export function createNotebookLmBatchClient(
         const urls = urlSources.map((source) => source.url);
         await addSources(tokens, notebookId, urls);
       }
-      await pollNotebookReady(tokens, notebookId, pollTimeoutMs, pollIntervalMs);
+      if (!input.skipPoll) {
+        await pollNotebookReady(tokens, notebookId, pollTimeoutMs, pollIntervalMs);
+      }
 
       return {
         ok: true,
