@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "D2L to NotebookLM",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Export D2L content to NotebookLM.",
   "action": {
     "default_title": "D2L to NotebookLM",
