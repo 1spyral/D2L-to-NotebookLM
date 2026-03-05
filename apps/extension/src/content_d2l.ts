@@ -17,7 +17,7 @@ import {
 
 const LEGACY_NAVBAR_BUTTON_ID = "d2l-to-notebooklm-navbar-button";
 
-function getNotebookTitle(): string {
+export function getNotebookTitle(): string {
   // Use the section name from the page heading, unless it's the top-level
   // "Table of Contents" — in that case fall back to the course name.
   const heading = document.querySelector("h1.d2l-page-title");
@@ -142,7 +142,7 @@ async function handleDownloadButtonAction(
   }
 }
 
-function insertDownloadButtons(): void {
+export function insertDownloadButtons(): void {
   const candidates = queryAllDeep("button.d2l-button");
 
   for (const element of candidates) {
