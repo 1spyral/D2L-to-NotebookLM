@@ -29,15 +29,15 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Build all targets
-        run: pnpm run build
+      - name: Build extension
+        run: pnpm build:extension
 
       - name: Package builds
         run: |
-          cd dist
-          zip -r ../d2l-to-notebooklm-chrome-${{ github.ref_name }}.zip chrome/
-          zip -r ../d2l-to-notebooklm-firefox-${{ github.ref_name }}.zip firefox/
-          zip -r ../d2l-to-notebooklm-safari-${{ github.ref_name }}.zip safari/
+          cd apps/extension/dist
+          zip -r ../../../d2l-to-notebooklm-chrome-${{ github.ref_name }}.zip chrome/
+          zip -r ../../../d2l-to-notebooklm-firefox-${{ github.ref_name }}.zip firefox/
+          zip -r ../../../d2l-to-notebooklm-safari-${{ github.ref_name }}.zip safari/
 
       - name: Create release
         uses: softprops/action-gh-release@v2
