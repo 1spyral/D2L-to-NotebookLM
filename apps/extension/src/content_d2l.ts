@@ -62,12 +62,21 @@ async function handleDownloadButtonAction(
     if (downloadedFile) {
       if (isZipFile(downloadedFile)) {
         const extractedFiles = await unzipFile(downloadedFile);
-        if (extractedFiles.length === 0) {
-          throw new Error("Downloaded ZIP file was empty after extraction.");
+        // Filter out "table of contents.html"
+        const filteredFiles = extractedFiles.filter(
+          (file) => file.name.toLowerCase() !== "table of contents.html"
+        );
+
+        if (filteredFiles.length === 0) {
+          throw new Error("No files found to upload (excluding Table of Contents).");
         }
 
-        sources = extractedFiles.map((file) => ({ file, title: file.name }));
+        sources = filteredFiles.map((file) => ({ file, title: file.name }));
       } else {
+        // Even for single files, filter if it's the table of contents
+        if (downloadedFile.name.toLowerCase() === "table of contents.html") {
+          throw new Error("The selected file is a Table of Contents and will be ignored.");
+        }
         sources = [{ file: downloadedFile, title: downloadedFile.name }];
       }
     } else {
