@@ -252,6 +252,19 @@ async function ensureNotebookLmTab(
   }
   await waitForTabComplete(tab.id);
   await delay(300);
+
+  // Validate that the tab has not been redirected away from the expected base URL
+  const updatedTab = await browser.tabs.get(tab.id);
+  if (!updatedTab.url || !updatedTab.url.startsWith(baseUrl)) {
+    logDebug("[NotebookLM] Tab URL no longer matches base URL after open", {
+      tabId: tab.id,
+      url: updatedTab.url,
+    });
+    throw new Error(
+      "NotebookLM is not available; please make sure you are signed in."
+    );
+  }
+
   return { tabId: tab.id, created: true };
 }
 
