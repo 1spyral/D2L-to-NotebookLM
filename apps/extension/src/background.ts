@@ -260,9 +260,7 @@ async function ensureNotebookLmTab(
       tabId: tab.id,
       url: updatedTab.url,
     });
-    throw new Error(
-      "NotebookLM is not available; please make sure you are signed in."
-    );
+    throw new Error("NotebookLM is not available; please make sure you are signed in.");
   }
 
   return { tabId: tab.id, created: true };
