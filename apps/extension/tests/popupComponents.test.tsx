@@ -85,4 +85,21 @@ describe("SaveUrlMenu", () => {
     fireEvent.click(screen.getByText("Clear"));
     expect(onClearFiles).toHaveBeenCalledTimes(1);
   });
+
+  it("has the correct accept attribute on the file input and calls onPickFiles", () => {
+    const onPickFiles = vi.fn();
+    const { container } = render(
+      <SaveUrlMenu {...baseProps} mode="files" onPickFiles={onPickFiles} />
+    );
+
+    const input = container.querySelector('input[type="file"]') as HTMLInputElement;
+    expect(input).not.toBeNull();
+    expect(input.accept).toBe(
+      ".pdf,.txt,.md,.docx,.csv,.epub,.avif,.bmp,.gif,.ico,.jp2,.png,.webp,.tif,.tiff,.heic,.heif,.jpeg,.jpg,.jpe,.3g2,.3gp,.aac,.aif,.aifc,.aiff,.amr,.au,.avi,.cda,.m4a,.mid,.mp3,.mp4,.mpeg,.ogg,.opus,.ra,.ram,.snd,.wav,.wma"
+    );
+
+    const file = new File(["test"], "test.pdf", { type: "application/pdf" });
+    fireEvent.change(input, { target: { files: [file] } });
+    expect(onPickFiles).toHaveBeenCalledWith(expect.anything());
+  });
 });
