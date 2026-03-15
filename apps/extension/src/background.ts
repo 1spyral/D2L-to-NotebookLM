@@ -154,24 +154,31 @@ async function uploadFileViaContentScript(input: {
   });
 
   // Ensure we have exactly one tab for uploads.
-  if (globalUploadTabPromise) {
-    // Check if the tab still exists and is on the right site.
-    const existingTabId = await globalUploadTabPromise;
-    try {
-      const tab = await browser.tabs.get(existingTabId);
-      if (!tab.url || !tab.url.startsWith(input.baseUrl)) {
-        globalUploadTabPromise = null;
-      }
-    } catch {
-      globalUploadTabPromise = null;
-    }
-  }
+  globalUploadTabPromise = (globalUploadTabPromise ?? Promise.resolve<number | null>(null)).then(
+    async (existingTabId) => {
+      let tabIdToUse: number | null = existingTabId;
 
-  if (!globalUploadTabPromise) {
-    globalUploadTabPromise = ensureNotebookLmTab(input.baseUrl, input.notebookId).then(
-      (res) => res.tabId
-    );
-  }
+      // Check if the tab still exists and is on the right site.
+      if (tabIdToUse !== null) {
+        try {
+          const tab = await browser.tabs.get(tabIdToUse);
+          if (!tab.url || !tab.url.startsWith(input.baseUrl)) {
+            tabIdToUse = null;
+          }
+        } catch {
+          tabIdToUse = null;
+        }
+      }
+
+      // If no valid existing tab, create a new one.
+      if (tabIdToUse === null) {
+        const res = await ensureNotebookLmTab(input.baseUrl, input.notebookId);
+        tabIdToUse = res.tabId;
+      }
+
+      return tabIdToUse;
+    }
+  );
 
   const tabId = await globalUploadTabPromise;
 
