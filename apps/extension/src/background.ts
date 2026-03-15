@@ -1,22 +1,22 @@
 import browser from "./lib/browser";
-import { createNotebookLmBatchClient } from "./lib/notebooklm/batchApi";
 import { logDebug } from "./lib/logger";
+import { createNotebookLmBatchClient } from "./lib/notebooklm/batchApi";
 import {
   isNotebookLmListAccountsRequest,
   isNotebookLmListNotebooksRequest,
   isNotebookLmSaveToNotebookRequest,
   NOTEBOOKLM_CONTENT_READY,
-  NOTEBOOKLM_UPLOAD_FILE,
-  NOTEBOOKLM_PING,
   NOTEBOOKLM_DEBUG_LOG,
-  type NotebookLmFileBlob,
+  NOTEBOOKLM_PING,
+  NOTEBOOKLM_UPLOAD_FILE,
   type NotebookLmContentReadyMessage,
   type NotebookLmDebugLogMessage,
+  type NotebookLmFileBlob,
   type NotebookLmListAccountsResponse,
   type NotebookLmListNotebooksResponse,
+  type NotebookLmPingResponse,
   type NotebookLmSaveToNotebookRequest,
   type NotebookLmSaveToNotebookResponse,
-  type NotebookLmPingResponse,
   type NotebookLmUploadFileResponse,
 } from "./lib/notebooklm/messages";
 
@@ -111,8 +111,8 @@ async function handleListNotebooks(): Promise<NotebookLmListNotebooksResponse> {
   return client.listNotebooks();
 }
 
-/** Cache of upload tabs keyed by notebookId so multiple file uploads reuse one tab. */
-const uploadTabCache = new Map<string, number>();
+/** The single tab used for all NotebookLM uploads to prevent multiple tabs. */
+let globalUploadTabPromise: Promise<number> | null = null;
 
 async function handleSaveToNotebook(
   message: NotebookLmSaveToNotebookRequest
@@ -152,22 +152,49 @@ async function uploadFileViaContentScript(input: {
     dataLength: input.file.data instanceof ArrayBuffer ? input.file.data.byteLength : undefined,
     base64Length: input.file.base64?.length,
   });
-  // Reuse an existing tab for this notebook, or create a new one.
-  let tabId = uploadTabCache.get(input.notebookId);
-  let tabValid = false;
-  if (tabId != null) {
-    try {
-      const existing = await browser.tabs.get(tabId);
-      tabValid = !!existing.url && existing.url.startsWith(input.baseUrl);
-    } catch {
-      tabValid = false;
+
+  // Ensure we have exactly one tab for uploads.
+  globalUploadTabPromise = (globalUploadTabPromise ?? Promise.resolve<number | null>(null)).then(
+    async (existingTabId) => {
+      let tabIdToUse: number | null = existingTabId;
+
+      // Check if the tab still exists and is on the right site.
+      if (tabIdToUse !== null) {
+        try {
+          const tab = await browser.tabs.get(tabIdToUse);
+          if (!tab.url || !tab.url.startsWith(input.baseUrl)) {
+            tabIdToUse = null;
+          }
+        } catch {
+          tabIdToUse = null;
+        }
+      }
+
+      // If no valid existing tab, create a new one.
+      if (tabIdToUse === null) {
+        const res = await ensureNotebookLmTab(input.baseUrl, input.notebookId);
+        tabIdToUse = res.tabId;
+      }
+
+      return tabIdToUse;
     }
+  );
+
+  const tabId = await globalUploadTabPromise;
+
+  // Ensure the tab is navigated to the correct notebook before uploading.
+  const currentTab = await browser.tabs.get(tabId);
+  const targetUrl = `${input.baseUrl}/notebook/${input.notebookId}`;
+  if (!currentTab.url || !currentTab.url.startsWith(targetUrl)) {
+    logDebug("[NotebookLM] Navigating existing tab to notebook", {
+      tabId,
+      notebookId: input.notebookId,
+    });
+    await browser.tabs.update(tabId, { url: targetUrl, active: true });
+    await waitForTabComplete(tabId);
+    await delay(300);
   }
-  if (!tabValid || tabId == null) {
-    const { tabId: newTabId } = await ensureNotebookLmTab(input.baseUrl, input.notebookId);
-    tabId = newTabId;
-    uploadTabCache.set(input.notebookId, tabId);
-  }
+
   logDebug("[NotebookLM] Upload tab ready", { tabId });
 
   await waitForContentScript(tabId);
@@ -188,8 +215,7 @@ async function uploadFileViaContentScript(input: {
   })) as NotebookLmUploadFileResponse | undefined;
 
   if (!response || response.ok === false) {
-    // On failure, remove from cache so next attempt gets a fresh tab.
-    uploadTabCache.delete(input.notebookId);
+    // On failure, we don't necessarily kill the tab, but the next attempt might retry.
     throw new Error(response?.error ?? "Upload failed.");
   }
   logDebug("[NotebookLM] Upload finished", { tabId });
@@ -209,7 +235,16 @@ async function ensureNotebookLmTab(
   baseUrl: string,
   notebookId: string
 ): Promise<{ tabId: number; created: boolean }> {
-  logDebug("[NotebookLM] Opening background tab");
+  // Try to find ANY existing NotebookLM tab first.
+  const tabs = await browser.tabs.query({ url: `${baseUrl}/*` });
+  if (tabs.length > 0 && tabs[0].id != null) {
+    const tabId = tabs[0].id;
+    logDebug("[NotebookLM] Reusing existing browser tab", { tabId });
+    await browser.tabs.update(tabId, { active: true });
+    return { tabId, created: false };
+  }
+
+  logDebug("[NotebookLM] Opening new background tab");
   const targetUrl = `${baseUrl}/notebook/${notebookId}`;
   const tab = await browser.tabs.create({ url: targetUrl, active: true });
   if (typeof tab.id !== "number") {
@@ -217,11 +252,17 @@ async function ensureNotebookLmTab(
   }
   await waitForTabComplete(tab.id);
   await delay(300);
-  const current = await browser.tabs.get(tab.id);
-  if (!current.url || !current.url.startsWith(baseUrl)) {
-    throw new Error("Please sign in to NotebookLM in the opened tab.");
+
+  // Validate that the tab has not been redirected away from the expected base URL
+  const updatedTab = await browser.tabs.get(tab.id);
+  if (!updatedTab.url || !updatedTab.url.startsWith(baseUrl)) {
+    logDebug("[NotebookLM] Tab URL no longer matches base URL after open", {
+      tabId: tab.id,
+      url: updatedTab.url,
+    });
+    throw new Error("NotebookLM is not available; please make sure you are signed in.");
   }
-  logDebug("[NotebookLM] Background tab loaded", { tabId: tab.id, url: current.url });
+
   return { tabId: tab.id, created: true };
 }
 
