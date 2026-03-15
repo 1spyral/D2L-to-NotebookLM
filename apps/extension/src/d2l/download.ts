@@ -1,3 +1,4 @@
+import { isSupportedFile } from "../lib/notebooklm/utils";
 import { queryAllDeep } from "./dom";
 import type { D2LWindow, JSZipLike, NotebookLmFileBlob } from "./types";
 
@@ -342,7 +343,7 @@ export async function unzipFile(file: NotebookLmFileBlob): Promise<NotebookLmFil
     }
 
     const entryName = toSafeZipEntryName(entry.name);
-    if (!entryName || entryName.endsWith(".DS_Store")) {
+    if (!entryName || entryName.endsWith(".DS_Store") || !isSupportedFile(entryName)) {
       continue;
     }
 

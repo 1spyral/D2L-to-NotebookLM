@@ -99,6 +99,7 @@ export function SaveUrlMenu({
             ref={fileInputRef}
             type="file"
             multiple
+            accept=".pdf,.txt,.md,.docx,.csv,.epub,.avif,.bmp,.gif,.ico,.jp2,.png,.webp,.tif,.tiff,.heic,.heif,.jpeg,.jpg,.jpe,.3g2,.3gp,.aac,.aif,.aifc,.aiff,.amr,.au,.avi,.cda,.m4a,.mid,.mp3,.mp4,.mpeg,.ogg,.opus,.ra,.ram,.snd,.wav,.wma"
             className="hidden"
             onChange={(event) => {
               if (!event.target.files || event.target.files.length === 0) return;

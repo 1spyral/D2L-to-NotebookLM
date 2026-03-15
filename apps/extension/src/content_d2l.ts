@@ -14,6 +14,7 @@ import {
 } from "./d2l/download";
 import { saveSourcesToNotebook, showNotebookPicker } from "./d2l/notebookPicker";
 import type { NotebookLmSource, NotebookPickerTarget } from "./d2l/types";
+import { isSupportedFile } from "./lib/notebooklm/utils";
 
 const LEGACY_NAVBAR_BUTTON_ID = "d2l-to-notebooklm-navbar-button";
 
@@ -62,20 +63,19 @@ async function handleDownloadButtonAction(
     if (downloadedFile) {
       if (isZipFile(downloadedFile)) {
         const extractedFiles = await unzipFile(downloadedFile);
-        // Filter out "table of contents.html"
-        const filteredFiles = extractedFiles.filter(
-          (file) => file.name.toLowerCase() !== "table of contents.html"
-        );
+        // unzipFile already filters with isSupportedFile, but we double-check here
+        // to handle the case where we might need to update the error message.
+        const filteredFiles = extractedFiles.filter((file) => isSupportedFile(file.name));
 
         if (filteredFiles.length === 0) {
-          throw new Error("No files found to upload (excluding Table of Contents).");
+          throw new Error("No supported files found to upload.");
         }
 
         sources = filteredFiles.map((file) => ({ file, title: file.name }));
       } else {
-        // Even for single files, filter if it's the table of contents
-        if (downloadedFile.name.toLowerCase() === "table of contents.html") {
-          throw new Error("The selected file is a Table of Contents and will be ignored.");
+        // Even for single files, filter if it's not supported
+        if (!isSupportedFile(downloadedFile.name)) {
+          throw new Error("The selected file type is not supported and will be ignored.");
         }
         sources = [{ file: downloadedFile, title: downloadedFile.name }];
       }

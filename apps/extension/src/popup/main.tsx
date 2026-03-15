@@ -4,14 +4,15 @@ import browser from "../lib/browser";
 import { logDebug } from "../lib/logger";
 import "./index.css";
 import {
+  NOTEBOOKLM_DEBUG_LOG,
   NOTEBOOKLM_LIST_NOTEBOOKS,
   NOTEBOOKLM_SAVE_TO_NOTEBOOK,
-  NOTEBOOKLM_DEBUG_LOG,
   type NotebookLmFileBlob,
   type NotebookLmListNotebooksResponse,
-  type NotebookLmSaveToNotebookResponse,
   type NotebookLmNotebook,
+  type NotebookLmSaveToNotebookResponse,
 } from "../lib/notebooklm/messages";
+import { isSupportedFile } from "../lib/notebooklm/utils";
 import { DarkModeToggle } from "./components/DarkModeToggle";
 import { SaveUrlMenu } from "./components/SaveUrlMenu";
 
@@ -222,7 +223,11 @@ function App() {
     setActionStatus(null);
 
     try {
-      const entries = Array.from(files);
+      const entries = Array.from(files).filter((file) => isSupportedFile(file.name));
+      if (entries.length === 0) {
+        setActionStatus({ type: "error", message: "No supported files selected." });
+        return;
+      }
       const blobs = await Promise.all(
         entries.map(async (file, index): Promise<NotebookLmFileBlob> => {
           const buffer = await file.arrayBuffer();

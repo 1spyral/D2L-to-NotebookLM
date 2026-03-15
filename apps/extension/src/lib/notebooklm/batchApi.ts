@@ -1,3 +1,4 @@
+import { extensionLogger } from "../logger";
 import type {
   NotebookLmAccount,
   NotebookLmFileBlob,
@@ -8,7 +9,6 @@ import type {
   NotebookLmSaveToNotebookResponse,
   NotebookLmSource,
 } from "./messages";
-import { extensionLogger } from "../logger";
 
 type Logger = {
   debug?: (...args: unknown[]) => void;
@@ -645,8 +645,40 @@ function resolveFileContentType(file: NotebookLmFileBlob): string {
     png: "image/png",
     jpg: "image/jpeg",
     jpeg: "image/jpeg",
+    jpe: "image/jpeg",
     gif: "image/gif",
     webp: "image/webp",
+    epub: "application/epub+zip",
+    avif: "image/avif",
+    bmp: "image/bmp",
+    ico: "image/x-icon",
+    jp2: "image/jp2",
+    tif: "image/tiff",
+    tiff: "image/tiff",
+    heic: "image/heic",
+    heif: "image/heif",
+    "3g2": "video/3gpp2",
+    "3gp": "video/3gpp",
+    aac: "audio/aac",
+    aif: "audio/x-aiff",
+    aifc: "audio/x-aiff",
+    aiff: "audio/x-aiff",
+    amr: "audio/amr",
+    au: "audio/basic",
+    avi: "video/x-msvideo",
+    cda: "application/x-cdf",
+    m4a: "audio/x-m4a",
+    mid: "audio/midi",
+    mp3: "audio/mpeg",
+    mp4: "video/mp4",
+    mpeg: "video/mpeg",
+    ogg: "audio/ogg",
+    opus: "audio/opus",
+    ra: "audio/x-realaudio",
+    ram: "audio/x-pn-realaudio",
+    snd: "audio/basic",
+    wav: "audio/wav",
+    wma: "audio/x-ms-wma",
   };
   return map[extension] ?? "application/octet-stream";
 }
